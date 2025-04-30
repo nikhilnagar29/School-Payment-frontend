@@ -26,12 +26,14 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.0.0",
+    "serve": "^14.2.4",
     "typescript": "^5.0.4",
     "vite": "^4.3.8"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:render": "tsc && vite build && (cd build && touch .keep)",
     "preview": "vite preview"
   },
   "eslintConfig": {

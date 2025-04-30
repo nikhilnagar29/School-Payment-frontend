@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: school-payment-dashboard
+    env: node
+    buildCommand: npm install && npm run build:render
+    startCommand: npx serve -s build
+    envVars:
+      - key: NODE_VERSION
+        value: 18.x
+    publishDirectory: build
