@@ -1,6 +1,7 @@
-import { useState, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { authAPI } from '../services/api';
+import axios from 'axios';
 import { 
   Container, 
   Box, 
@@ -16,24 +17,101 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
-  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
   // Get the return URL from location state or default to dashboard
   const from = (location.state as any)?.from?.pathname || '/dashboard';
 
+  // Check if token exists in localStorage on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
+
+  // Effect to handle navigation after successful authentication
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Use a small delay to ensure state updates complete
+      const navigationTimer = setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 100);
+      
+      return () => clearTimeout(navigationTimer);
+    }
+  }, [isAuthenticated, navigate, from]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
-      await login(email, password);
+      // Input validation
+      if (!email.trim() || !password.trim()) {
+        throw new Error('Please fill in all fields');
+      }
+
+      if (!email.includes('@')) {
+        throw new Error('Please enter a valid email address');
+      }
+
+      // Make API call to backend
+      console.log("Making API call to:", `${import.meta.env.VITE_BACKEND_URL}/api/auth/login`);
+      const response = await authAPI.login(email, password);
+
+      console.log("Login response:", response.data);
+
+      // Check if response has the expected structure
+      if (!response.data || !response.data.token) {
+        throw new Error('Invalid response from server');
+      }
+
+      // Store token and user data securely
+      await localStorage.setItem('token', response.data.token);
+      if(response.data.user){
+        await localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
+      
+      // Set axios default header for future requests
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+
+      // Clear sensitive data
+      setEmail('');
+      setPassword('');
+      
+      // Set authenticated state to trigger navigation effect
+      setIsAuthenticated(true);
+      
+      console.log("Authentication successful, redirecting to:", from);
+      
+      // Direct navigation attempt (backup)
       navigate(from, { replace: true });
+      
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      console.error("Login error:", err);
+      
+      // Handle different types of errors
+      if (err.response) {
+        // Backend error response
+        console.error("Backend error:", err.response.data);
+        setError(err.response.data?.error || 'Login failed. Please check your credentials.');
+      } else if (err.request) {
+        // Network error
+        console.error("Network error:", err.request);
+        setError('Unable to connect to server. Please check your internet connection.');
+      } else {
+        // Client-side error
+        console.error("Client error:", err.message);
+        setError(err.message || 'An unexpected error occurred.');
+      }
+      
+      // Clear password field on error
+      setPassword('');
     } finally {
       setLoading(false);
     }
@@ -57,9 +135,19 @@ const Login = () => {
             Login
           </Typography>
           
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
           
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box 
+            component="form" 
+            onSubmit={handleSubmit} 
+            noValidate 
+            sx={{ mt: 1 }}
+            autoComplete="off"
+          >
             <TextField
               margin="normal"
               required
@@ -71,6 +159,9 @@ const Login = () => {
               autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              error={!!error && !email}
+              helperText={!!error && !email ? 'Email is required' : ''}
             />
             <TextField
               margin="normal"
@@ -83,13 +174,16 @@ const Login = () => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+              error={!!error && !password}
+              helperText={!!error && !password ? 'Password is required' : ''}
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
+              disabled={loading || !email || !password}
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>

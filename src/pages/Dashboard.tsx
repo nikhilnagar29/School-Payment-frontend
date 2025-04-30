@@ -68,7 +68,11 @@ const Dashboard = () => {
   
   // Update URL when filters change
   const updateFilters = (newFilters: Record<string, any>) => {
-    const updatedParams = { page: page.toString(), limit: limit.toString(), status };
+    const updatedParams: Record<string, string> = { 
+      page: page.toString(), 
+      limit: limit.toString(), 
+      status 
+    };
     
     // Update with new filters
     Object.entries(newFilters).forEach(([key, value]) => {
