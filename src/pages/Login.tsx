@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import axios from 'axios';
@@ -17,7 +17,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,25 +25,7 @@ const Login = () => {
   // Get the return URL from location state or default to dashboard
   const from = (location.state as any)?.from?.pathname || '/dashboard';
 
-  // Check if token exists in localStorage on component mount
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/dashboard', { replace: true });
-    }
-  }, [navigate]);
-
-  // Effect to handle navigation after successful authentication
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Use a small delay to ensure state updates complete
-      const navigationTimer = setTimeout(() => {
-        navigate(from, { replace: true });
-      }, 100);
-      
-      return () => clearTimeout(navigationTimer);
-    }
-  }, [isAuthenticated, navigate, from]);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,12 +67,11 @@ const Login = () => {
       setPassword('');
       
       // Set authenticated state to trigger navigation effect
-      setIsAuthenticated(true);
       
       console.log("Authentication successful, redirecting to:", from);
       
       // Direct navigation attempt (backup)
-      navigate(from, { replace: true });
+      navigate('/dashboard', { replace: true });
       
     } catch (err: any) {
       console.error("Login error:", err);
