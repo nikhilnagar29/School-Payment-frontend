@@ -1,0 +1,15 @@
+#!/bin/bash
+# Build the project
+npm run build
+
+# Copy the _redirects file to the build directory
+if [ -f public/_redirects ]; then
+  cp public/_redirects build/
+else
+  echo "/* /index.html 200" > build/_redirects
+fi
+
+# Create a .keep file to ensure the build directory is not empty
+touch build/.keep
+
+echo "Build completed successfully!" 

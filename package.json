@@ -33,8 +33,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:render": "tsc && vite build && (cd build && touch .keep)",
-    "preview": "vite preview"
+    "build:render": "tsc && vite build && (cp public/_redirects build/ || echo '/* /index.html 200' > build/_redirects) && (cd build && touch .keep)",
+    "preview": "vite preview",
+    "postinstall": "npm install -g serve"
   },
   "eslintConfig": {
     "extends": [

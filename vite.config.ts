@@ -6,5 +6,10 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'build',
-  }
+  },
+  server: {
+    // Enable SPA fallback in dev mode
+    proxy: {},
+    open: true
+  },
 })
