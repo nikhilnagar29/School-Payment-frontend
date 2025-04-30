@@ -65,9 +65,18 @@ export const transactionsAPI = {
     console.log('[API Request] Getting transactions with params:', params);
     return api.get('/api/transactions/test', { params });
   },
-  getTransactionById: (id: string) => api.get(`/api/transactions/${id}`),
-  getTransactionsBySchool: (schoolId: string, params: any = {}) => 
-    api.get(`/api/transactions/school/${schoolId}`, { params }),
+  getTransactionById: (id: string) => {
+    console.log('[API Request] Getting transaction details:', id);
+    return api.get(`/api/transactions/${id}`);
+  },
+  getTransactionsBySchool: (schoolId: string | undefined, params: any = {}) => {
+    // Use default school ID if undefined
+    const validSchoolId = schoolId || '65b0e6293e9f76a9694d84b4';
+    console.log('[API Request] Getting transactions for school:', validSchoolId);
+    
+    // Use the test endpoint which returns properly formatted data
+    return api.get(`/api/transactions/test/school/${validSchoolId}`, { params });
+  },
   getTransactionSummary: () => {
     console.log('[API Request] Getting transaction summary');
     return api.get('/api/transactions/test/summary');

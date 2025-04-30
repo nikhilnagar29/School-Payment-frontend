@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { transactionsAPI } from '../services/api';
 import {
   Container,
@@ -17,11 +17,24 @@ import {
   Grid,
   CircularProgress,
   Alert,
-  Box
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  SelectChangeEvent,
+  Button
 } from '@mui/material';
 
+// List of available schools
+const AVAILABLE_SCHOOLS = [
+  { id: '65b0e6293e9f76a9694d84b4', name: 'School 1' },
+  { id: '68118fcac26aadc91ae5192a', name: 'School 2' }
+];
+
 const SchoolTransactions = () => {
-  const { schoolId } = useParams<{ schoolId: string }>();
+  const { schoolId = '65b0e6293e9f76a9694d84b4' } = useParams<{ schoolId: string }>();
+  const navigate = useNavigate();
+  const [selectedSchool, setSelectedSchool] = useState(schoolId);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +52,7 @@ const SchoolTransactions = () => {
   
   // Update URL when filters change
   const updateFilters = (newFilters: Record<string, any>) => {
-    const updatedParams = { page: page.toString(), limit: limit.toString(), status };
+    const updatedParams: Record<string, string> = { page: page.toString(), limit: limit.toString(), status };
     
     // Update with new filters
     Object.entries(newFilters).forEach(([key, value]) => {
@@ -56,8 +69,6 @@ const SchoolTransactions = () => {
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
-      if (!schoolId) return;
-      
       setLoading(true);
       setError(null);
       
@@ -72,14 +83,21 @@ const SchoolTransactions = () => {
           params.status = status;
         }
         
-        const response = await transactionsAPI.getTransactionsBySchool(schoolId, params);
-        setTransactions(response.data.transactions || []);
+        const response = await transactionsAPI.getTransactionsBySchool(selectedSchool, params);
+        console.log('API Response:', response.data);
+        
+        // Handle the data format from the API
+        const transactionsData = response.data?.data || [];
+        setTransactions(transactionsData);
+        
+        // Handle pagination from the API response
         setPagination({
-          currentPage: response.data.pagination?.currentPage || 1,
-          totalPages: response.data.pagination?.totalPages || 1,
-          totalRecords: response.data.pagination?.totalRecords || 0
+          currentPage: (response.data?.pagination?.page || 1) - 1, // Convert to 0-based for MUI
+          totalPages: response.data?.pagination?.pages || 1,
+          totalRecords: response.data?.pagination?.total || 0
         });
       } catch (err: any) {
+        console.error("Error fetching school transactions:", err);
         setError(err.message || 'Failed to load school transactions');
       } finally {
         setLoading(false);
@@ -87,7 +105,7 @@ const SchoolTransactions = () => {
     };
     
     fetchData();
-  }, [schoolId, page, limit, status]);
+  }, [selectedSchool, page, limit, status]);
 
   // Pagination handlers
   const handleChangePage = (_: any, newPage: number) => {
@@ -101,6 +119,13 @@ const SchoolTransactions = () => {
   // Status filter handler
   const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     updateFilters({ status: event.target.value, page: 0 });
+  };
+
+  // School change handler
+  const handleSchoolChange = (event: SelectChangeEvent) => {
+    const newSchoolId = event.target.value;
+    setSelectedSchool(newSchoolId);
+    navigate(`/schools/${newSchoolId}`);
   };
 
   // Format date
@@ -123,6 +148,23 @@ const SchoolTransactions = () => {
       {/* Filters */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={4}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="school-select-label">School</InputLabel>
+              <Select
+                labelId="school-select-label"
+                value={selectedSchool}
+                label="School"
+                onChange={handleSchoolChange}
+              >
+                {AVAILABLE_SCHOOLS.map(school => (
+                  <MenuItem key={school.id} value={school.id}>
+                    {school.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
           <Grid item xs={12} sm={4}>
             <TextField
               select
@@ -170,10 +212,15 @@ const SchoolTransactions = () => {
                 </TableRow>
               ) : (
                 transactions.map((transaction) => (
-                  <TableRow key={transaction._id || transaction.collect_id}>
+                  <TableRow 
+                    key={transaction._id}
+                    hover
+                    onClick={() => navigate(`/transactions/${transaction._id}`)}
+                    sx={{ cursor: 'pointer' }}
+                  >
                     <TableCell>{transaction.custom_order_id}</TableCell>
                     <TableCell>{transaction.student_info?.names || 'N/A'}</TableCell>
-                    <TableCell>₹{transaction.order_amount.toLocaleString()}</TableCell>
+                    <TableCell>₹{transaction.order_amount?.toLocaleString() || '0'}</TableCell>
                     <TableCell>
                       <Box
                         sx={{

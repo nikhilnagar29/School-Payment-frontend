@@ -12,6 +12,7 @@ import TransactionStatus from './pages/TransactionStatus';
 import CreatePayment from './pages/CreatePayment';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
+import TransactionDetail from './pages/TransactionDetail';
 
 function App() {
   return (
@@ -25,9 +26,11 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/schools" element={<SchoolTransactions />} />
             <Route path="/schools/:schoolId" element={<SchoolTransactions />} />
             <Route path="/transactions/check-status" element={<CheckStatus />} />
             <Route path="/transactions/status/:custom_order_id" element={<TransactionStatus />} />
+            <Route path="/transactions/:transactionId" element={<TransactionDetail />} />
             <Route path="/payments/create" element={<CreatePayment />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
