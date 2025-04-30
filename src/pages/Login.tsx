@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { authAPI } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import { 
   Container, 
@@ -9,7 +9,8 @@ import {
   TextField, 
   Button, 
   Paper, 
-  Alert 
+  Alert,
+  CircularProgress 
 } from '@mui/material';
 
 const Login = () => {
@@ -17,15 +18,29 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
-  
+  const { login, isAuthenticated, error: authError } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
   // Get the return URL from location state or default to dashboard
   const from = (location.state as any)?.from?.pathname || '/dashboard';
 
-  
+  // Monitor authentication state and redirect when authenticated
+  useEffect(() => {
+    if (isAuthenticated || loginSuccess) {
+      console.log("Authenticated, redirecting to:", from);
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, loginSuccess, navigate, from]);
+
+  // Show auth context errors
+  useEffect(() => {
+    if (authError) {
+      setError(authError);
+    }
+  }, [authError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,9 +57,18 @@ const Login = () => {
         throw new Error('Please enter a valid email address');
       }
 
-      // Make API call to backend
-      console.log("Making API call to:", `${import.meta.env.VITE_BACKEND_URL}/api/auth/login`);
-      const response = await authAPI.login(email, password);
+      // Try using the auth context login first
+      try {
+        await login(email, password);
+        setLoginSuccess(true);
+        return; // Exit if login was successful
+      } catch (authErr) {
+        console.log("Auth context login failed, trying direct API call");
+      }
+
+      // Fallback to direct API call if auth context login fails
+      console.log("Making direct API call to login");
+      const response = await axios.post('/api/auth/login', { email, password });
 
       console.log("Login response:", response.data);
 
@@ -54,9 +78,9 @@ const Login = () => {
       }
 
       // Store token and user data securely
-      await localStorage.setItem('token', response.data.token);
+      localStorage.setItem('token', response.data.token);
       if(response.data.user){
-        await localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('user', JSON.stringify(response.data.user));
       }
       
       // Set axios default header for future requests
@@ -66,12 +90,11 @@ const Login = () => {
       setEmail('');
       setPassword('');
       
-      // Set authenticated state to trigger navigation effect
-      
-      console.log("Authentication successful, redirecting to:", from);
-      
-      // Direct navigation attempt (backup)
-      navigate('/dashboard', { replace: true });
+      // Force navigation 
+      setLoginSuccess(true);
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 100);
       
     } catch (err: any) {
       console.error("Login error:", err);
@@ -122,6 +145,12 @@ const Login = () => {
             </Alert>
           )}
           
+          {loginSuccess && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Login successful! Redirecting...
+            </Alert>
+          )}
+          
           <Box 
             component="form" 
             onSubmit={handleSubmit} 
@@ -140,7 +169,7 @@ const Login = () => {
               autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
+              disabled={loading || loginSuccess}
               error={!!error && !email}
               helperText={!!error && !email ? 'Email is required' : ''}
             />
@@ -155,7 +184,7 @@ const Login = () => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
+              disabled={loading || loginSuccess}
               error={!!error && !password}
               helperText={!!error && !password ? 'Password is required' : ''}
             />
@@ -164,9 +193,15 @@ const Login = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={loading || !email || !password}
+              disabled={loading || loginSuccess || !email || !password}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : loginSuccess ? (
+                'Signed In'
+              ) : (
+                'Sign In'
+              )}
             </Button>
             <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Link to="/register">

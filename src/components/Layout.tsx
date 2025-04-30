@@ -66,7 +66,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ListItemButton>
         </ListItem>
         
-        {user?.schools?.length > 0 && user.schools.map((school: any) => (
+        {user?.schools?.length > 0 && user?.schools.map((school: any) => (
           <ListItem key={school._id || `school-${school.id || Math.random().toString()}`} disablePadding>
             <ListItemButton component={Link} to={`/schools/${school._id || school.id}`}>
               <ListItemIcon>
