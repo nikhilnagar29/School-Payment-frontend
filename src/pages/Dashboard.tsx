@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { transactionsAPI, isDevelopment } from '../services/api';
 import {
   Container,
@@ -84,6 +84,7 @@ const Dashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [useMockData, setUseMockData] = useState(false);
+  const navigate = useNavigate();
   
   // Pagination and filtering
   const [searchParams, setSearchParams] = useSearchParams();
@@ -337,6 +338,19 @@ const Dashboard = () => {
     return num !== undefined ? num.toLocaleString() : '0';
   };
 
+  // Handle navigation to transaction details
+  const handleRowClick = (transaction: Transaction) => {
+    if (transaction._id) {
+      navigate(`/transactions/${transaction._id}`);
+    } else if (transaction.collect_id) {
+      // Use collect_id as fallback if _id is not available
+      navigate(`/transactions/${transaction.collect_id}`);
+    } else {
+      console.error('Transaction ID not found:', transaction);
+      // Show a small error message if needed
+    }
+  };
+
   return (
     <Container maxWidth="lg">
       <Typography variant="h4" component="h1" gutterBottom>
@@ -513,7 +527,11 @@ const Dashboard = () => {
                   <TableRow 
                     key={transaction._id || transaction.collect_id} 
                     hover
-                    sx={{ '&:hover': { backgroundColor: '#f9f9f9' } }}
+                    sx={{ 
+                      '&:hover': { backgroundColor: '#f9f9f9' },
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => handleRowClick(transaction)}
                   >
                     <TableCell>{transaction.custom_order_id}</TableCell>
                     <TableCell>{transaction.student_info?.names || 'N/A'}</TableCell>
