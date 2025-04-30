@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
           
           // Get current user data
-          const res = await axios.get('/auth/me');
+          const res = await axios.get('/api/auth/me');
           setUser(res.data.data);
           setIsAuthenticated(true);
         } catch (err) {
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (email: string, password: string) => {
     try {
       setError(null);
-      const res = await axios.post('/auth/login', { email, password });
+      const res = await axios.post('/api/auth/login', { email, password });
       const { token } = res.data;
       
       // Save token and set headers
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       // Get user data
-      const userRes = await axios.get('/auth/me');
+      const userRes = await axios.get('/api/auth/me');
       setUser(userRes.data.data);
       setIsAuthenticated(true);
     } catch (err: any) {

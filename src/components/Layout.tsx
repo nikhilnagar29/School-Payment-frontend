@@ -57,7 +57,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </Toolbar>
       <Divider />
       <List>
-        <ListItem disablePadding>
+        <ListItem key="dashboard" disablePadding>
           <ListItemButton component={Link} to="/dashboard">
             <ListItemIcon>
               <DashboardIcon />
@@ -67,17 +67,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </ListItem>
         
         {user?.schools?.length > 0 && user.schools.map((school: any) => (
-          <ListItem key={school._id} disablePadding>
-            <ListItemButton component={Link} to={`/schools/${school._id}`}>
+          <ListItem key={school._id || `school-${school.id || Math.random().toString()}`} disablePadding>
+            <ListItemButton component={Link} to={`/schools/${school._id || school.id}`}>
               <ListItemIcon>
                 <SchoolIcon />
               </ListItemIcon>
-              <ListItemText primary={school.name || `School ${school._id}`} />
+              <ListItemText primary={school.name || `School ${school._id || school.id}`} />
             </ListItemButton>
           </ListItem>
         ))}
 
-        <ListItem disablePadding>
+        <ListItem key="create-payment" disablePadding>
           <ListItemButton component={Link} to="/payments/create">
             <ListItemIcon>
               <PaymentsIcon />
@@ -86,7 +86,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ListItemButton>
         </ListItem>
 
-        <ListItem disablePadding>
+        <ListItem key="check-status" disablePadding>
           <ListItemButton component={Link} to="/transactions/check-status">
             <ListItemIcon>
               <SearchIcon />
@@ -97,7 +97,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </List>
       <Divider />
       <List>
-        <ListItem disablePadding>
+        <ListItem key="settings" disablePadding>
           <ListItemButton component={Link} to="/settings">
             <ListItemIcon>
               <SettingsIcon />
@@ -105,7 +105,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
-        <ListItem disablePadding>
+        <ListItem key="logout" disablePadding>
           <ListItemButton onClick={handleLogout}>
             <ListItemIcon>
               <LogoutIcon />

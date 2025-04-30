@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useRef } from 'react';
 import { paymentsAPI } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import {
@@ -12,7 +12,10 @@ import {
   MenuItem,
   CircularProgress,
   Grid,
-  Link
+  Link,
+  IconButton,
+  Tooltip,
+  Snackbar
 } from '@mui/material';
 
 const CreatePayment = () => {
@@ -23,7 +26,7 @@ const CreatePayment = () => {
       id: '',
       email: ''
     },
-    school_id: '',
+    school_id: '65b0e6293e9f76a9694d84b4', // Default school ID
     order_amount: ''
   });
   
@@ -32,6 +35,7 @@ const CreatePayment = () => {
   const [success, setSuccess] = useState(false);
   const [paymentLink, setPaymentLink] = useState<string | null>(null);
   const [collectRequestId, setCollectRequestId] = useState<string | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -84,12 +88,22 @@ const CreatePayment = () => {
     }
   };
   
-  // Mock school data (would be fetched from API in a real implementation)
-  const schoolOptions = user?.schools || [
-    { _id: 'school_1', name: 'School 1' },
-    { _id: 'school_2', name: 'School 2' },
-    { _id: 'school_3', name: 'School 3' }
-  ];
+  // Copy payment link to clipboard
+  const handleCopyLink = () => {
+    if (paymentLink) {
+      navigator.clipboard.writeText(paymentLink);
+      setCopySuccess(true);
+    }
+  };
+  
+  // Send payment link via email
+  const handleSendEmail = () => {
+    if (paymentLink && paymentData.student_info.email) {
+      const subject = "Your Payment Link";
+      const body = `Hello ${paymentData.student_info.names},\n\nHere is your payment link: ${paymentLink}\n\nThank you!`;
+      window.open(`mailto:${paymentData.student_info.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    }
+  };
 
   return (
     <Container maxWidth="md">
@@ -99,6 +113,13 @@ const CreatePayment = () => {
       
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       
+      <Snackbar
+        open={copySuccess}
+        autoHideDuration={3000}
+        onClose={() => setCopySuccess(false)}
+        message="Payment link copied to clipboard"
+      />
+      
       {success && paymentLink && (
         <Alert severity="success" sx={{ mb: 2 }}>
           <Typography variant="body1" gutterBottom>
@@ -107,16 +128,36 @@ const CreatePayment = () => {
           <Typography variant="body2">
             Request ID: {collectRequestId}
           </Typography>
-          <Box sx={{ mt: 2 }}>
+          <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             <Button 
               variant="contained" 
               color="primary" 
               href={paymentLink}
               target="_blank"
               rel="noopener noreferrer"
+              sx={{ mr: 1 }}
             >
               Open Payment Link
             </Button>
+            
+            <Button 
+              variant="outlined" 
+              color="primary" 
+              onClick={handleCopyLink}
+              sx={{ mr: 1 }}
+            >
+              Copy Link
+            </Button>
+            
+            {paymentData.student_info.email && (
+              <Button 
+                variant="outlined" 
+                color="secondary" 
+                onClick={handleSendEmail}
+              >
+                Send via Email
+              </Button>
+            )}
           </Box>
         </Alert>
       )}
@@ -158,6 +199,7 @@ const CreatePayment = () => {
                 type="email"
                 value={paymentData.student_info.email}
                 onChange={handleChange}
+                helperText="Email is optional but required for sending the payment link"
               />
             </Grid>
           </Grid>
@@ -169,20 +211,12 @@ const CreatePayment = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
-                select
-                required
+                disabled
                 fullWidth
                 label="School"
                 name="school_id"
-                value={paymentData.school_id}
-                onChange={handleChange as any}
-              >
-                {schoolOptions.map((school: any) => (
-                  <MenuItem key={school._id} value={school._id}>
-                    {school.name || `School ${school._id}`}
-                  </MenuItem>
-                ))}
-              </TextField>
+                value="School-1"
+              />
             </Grid>
             
             <Grid item xs={12} sm={6}>
