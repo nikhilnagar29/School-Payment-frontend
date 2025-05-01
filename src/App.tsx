@@ -35,6 +35,37 @@ const initDarkMode = () => {
   }
 };
 
+// Listen for system theme changes
+const setupSystemThemeListener = () => {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  
+  const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+    // Only apply system preference if no user preference is saved
+    if (localStorage.getItem('darkMode') === null) {
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('darkMode', 'true');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('darkMode', 'false');
+      }
+      
+      // Notify components of the change
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'darkMode',
+        newValue: e.matches ? 'true' : 'false',
+        storageArea: localStorage
+      }));
+    }
+  };
+  
+  // Add listener for theme changes
+  mediaQuery.addEventListener('change', handleSystemThemeChange);
+  
+  // Return cleanup function
+  return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+};
+
 // ScrollToTop component to scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -50,34 +81,57 @@ function App() {
   // Initialize dark mode on app load
   useEffect(() => {
     initDarkMode();
+    
+    // Set up system theme listener
+    const cleanupListener = setupSystemThemeListener();
+    
+    // Listen for manual dark mode changes
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'darkMode') {
+        if (e.newValue === 'true') {
+          document.documentElement.classList.add('dark');
+        } else if (e.newValue === 'false') {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      cleanupListener();
+    };
   }, []);
   
   return (
     <HashRouter>
-      <AuthProvider>
-        <ScrollToTop />
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+        <AuthProvider>
+          <ScrollToTop />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/schools" element={<SchoolTransactions />} />
-            <Route path="/schools/:schoolId" element={<SchoolTransactions />} />
-            <Route path="/transactions/check-status" element={<CheckStatus />} />
-            <Route path="/transactions/status/:custom_order_id" element={<TransactionStatus />} />
-            <Route path="/transactions/:transactionId" element={<TransactionDetail />} />
-            <Route path="/payments/create" element={<CreatePayment />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/schools" element={<SchoolTransactions />} />
+              <Route path="/schools/:schoolId" element={<SchoolTransactions />} />
+              <Route path="/transactions/check-status" element={<CheckStatus />} />
+              <Route path="/transactions/status/:custom_order_id" element={<TransactionStatus />} />
+              <Route path="/transactions/:transactionId" element={<TransactionDetail />} />
+              <Route path="/payments/create" element={<CreatePayment />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
 
-          {/* Redirects */}
-          <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </AuthProvider>
+            {/* Redirects */}
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
+      </div>
     </HashRouter>
   );
 }
