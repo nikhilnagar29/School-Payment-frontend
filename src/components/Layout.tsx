@@ -149,13 +149,32 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ListItemButton>
         </ListItem>
         
+        {/* <ListItem key="all-transactions" disablePadding>
+          <ListItemButton 
+            component={Link} 
+            to="/transactions"
+            className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
+              location.pathname === '/transactions' ? 'bg-gray-100 dark:bg-gray-700' : ''
+            }`}
+            onClick={() => isMobile && setMobileOpen(false)}
+          >
+            <ListItemIcon className="min-w-10 text-primary-600 dark:text-primary-400">
+              <TransactionsIcon />
+            </ListItemIcon>
+            <ListItemText 
+              primary="All Transactions" 
+              className="text-gray-900 dark:text-gray-100"
+            />
+          </ListItemButton>
+        </ListItem> */}
+        
         {user?.schools?.length > 0 && user?.schools.map((school: any, index: number) => (
           <ListItem key={school._id || `school-${index}`} disablePadding>
             <ListItemButton 
               component={Link} 
               to={`/schools/${school || school.id}`}
               className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
-                isActive(`/schools/${school._id || school.id}`) ? 'bg-gray-100 dark:bg-gray-700' : ''
+                isActive(`/schools/${school || school.id}`) ? 'bg-gray-100 dark:bg-gray-700' : ''
               }`}
               onClick={() => isMobile && setMobileOpen(false)}
             >
@@ -189,7 +208,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ListItemButton>
         </ListItem>
 
-        <ListItem key="check-status" disablePadding>
+        {/* <ListItem key="check-status" disablePadding>
           <ListItemButton 
             component={Link} 
             to="/transactions/check-status"
@@ -206,7 +225,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               className="text-gray-900 dark:text-gray-100"
             />
           </ListItemButton>
-        </ListItem>
+        </ListItem> */}
       </List>
       <Divider className="dark:border-gray-700" />
       <List className="py-2">
