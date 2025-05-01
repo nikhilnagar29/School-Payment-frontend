@@ -383,9 +383,11 @@ const TransactionDetail = () => {
           <Divider sx={{ mb: 2 }} />
           
           <Box sx={{ mt: 2, mb: 1 }}>
-            <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
-              {transaction.payment_link}
-            </Typography>
+            <div className='text-wrap'>
+              <Typography variant="body2" className='text-wrap' sx={{ wordBreak: 'break-all' }}>
+                {transaction.payment_link.substring(0, 75)}...
+              </Typography>
+            </div>
           </Box>
           
           <Button 

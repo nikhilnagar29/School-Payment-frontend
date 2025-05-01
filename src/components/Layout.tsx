@@ -143,9 +143,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Typography variant="body1" sx={{ mr: 2 }}>
             {user?.name}
           </Typography>
-          <Button color="inherit" onClick={handleLogout}>
-            Logout
-          </Button>
+          
         </Toolbar>
       </AppBar>
       <Box

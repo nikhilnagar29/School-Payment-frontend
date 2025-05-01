@@ -1,6 +1,7 @@
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import { useEffect } from 'react';
 
 // Page imports
 import Dashboard from './pages/Dashboard';
@@ -14,10 +15,47 @@ import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import TransactionDetail from './pages/TransactionDetail';
 
+// Initialize dark mode
+const initDarkMode = () => {
+  // Check if dark mode is saved in localStorage
+  const darkModeSaved = localStorage.getItem('darkMode');
+  
+  if (darkModeSaved === 'true') {
+    document.documentElement.classList.add('dark');
+  } else if (darkModeSaved === 'false') {
+    document.documentElement.classList.remove('dark');
+  } else {
+    // If no preference is saved, use system preference
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('darkMode', 'true');
+    } else {
+      localStorage.setItem('darkMode', 'false');
+    }
+  }
+};
+
+// ScrollToTop component to scroll to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  
+  return null;
+}
+
 function App() {
+  // Initialize dark mode on app load
+  useEffect(() => {
+    initDarkMode();
+  }, []);
+  
   return (
     <HashRouter>
       <AuthProvider>
+        <ScrollToTop />
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />

@@ -1,24 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material';
 import axios from 'axios';
+import './index.css'; // Import Tailwind CSS
 
 // Configure axios defaults
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Create a theme instance
+// Create a theme instance (Material UI + Tailwind compatibility)
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#0ea5e9', // Tailwind primary-500
     },
     secondary: {
-      main: '#dc004e',
+      main: '#8b5cf6', // Tailwind secondary-500
     },
+    mode: 'light', // Default to light mode (will be overridden by Tailwind dark mode)
   },
   typography: {
     fontFamily: [
+      'system-ui',
       '-apple-system',
       'BlinkMacSystemFont',
       '"Segoe UI"',
@@ -31,12 +34,20 @@ const theme = createTheme({
       '"Segoe UI Symbol"',
     ].join(','),
   },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none', // Remove default background image
+        },
+      },
+    },
+  },
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <CssBaseline />
       <App />
     </ThemeProvider>
   </React.StrictMode>
