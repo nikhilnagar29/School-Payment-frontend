@@ -302,8 +302,8 @@ const Settings = () => {
           </div>
           
           <div className="flex space-x-2 items-center">
-            <span className={`h-8 w-8 rounded-full ${darkMode ? 'bg-gray-800 border-2 border-primary-400' : 'bg-gray-200'} transition-colors duration-200`}></span>
-            <span className={`h-8 w-8 rounded-full ${!darkMode ? 'bg-white border-2 border-primary-400 shadow-sm' : 'bg-gray-600'} transition-colors duration-200`}></span>
+            {/* <span className={`h-8 w-8 rounded-full ${darkMode ? 'bg-gray-800 border-2 border-primary-400' : 'bg-gray-200'} transition-colors duration-200`}></span>
+            <span className={`h-8 w-8 rounded-full ${!darkMode ? 'bg-white border-2 border-primary-400 shadow-sm' : 'bg-gray-600'} transition-colors duration-200`}></span> */}
           </div>
         </div>
       </div>

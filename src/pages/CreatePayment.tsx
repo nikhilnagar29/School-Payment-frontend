@@ -105,7 +105,7 @@ const CreatePayment = () => {
   };
 
   return (
-    <div className="p-4 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+    <div className="p-4 bg-gray-50 rounded-lg m-[-10px] dark:bg-gray-900 min-h-screen transition-colors duration-200">
       <div className="absolute top-4 right-4">
         <DarkModeToggle />
       </div>
@@ -217,10 +217,10 @@ const CreatePayment = () => {
                   onChange={handleChange}
                   className="input"
                   InputProps={{
-                    className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className: "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:border-gray-800 "
                   }}
                   InputLabelProps={{
-                    className: "text-gray-600 dark:text-gray-400"
+                    className: "text-gray-600 dark:text-gray-300 "
                   }}
                 />
               </Grid>
@@ -235,10 +235,10 @@ const CreatePayment = () => {
                   onChange={handleChange}
                   className="input"
                   InputProps={{
-                    className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className: "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:border-gray-800 "
                   }}
                   InputLabelProps={{
-                    className: "text-gray-600 dark:text-gray-400"
+                    className: "text-gray-600 dark:text-gray-300 "
                   }}
                 />
               </Grid>
@@ -254,10 +254,10 @@ const CreatePayment = () => {
                   helperText="Email is optional but required for sending the payment link"
                   className="input"
                   InputProps={{
-                    className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className: "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:border-gray-800 "
                   }}
                   InputLabelProps={{
-                    className: "text-gray-600 dark:text-gray-400"
+                    className: "text-gray-600 dark:text-gray-300 "
                   }}
                   FormHelperTextProps={{
                     className: "text-gray-500 dark:text-gray-400"
@@ -286,10 +286,10 @@ const CreatePayment = () => {
                   value="School-1"
                   className="input"
                   InputProps={{
-                    className: "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                    className: "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 dark:border-gray-800 "
                   }}
                   InputLabelProps={{
-                    className: "text-gray-600 dark:text-gray-400"
+                    className: "text-gray-600 dark:text-gray-300 "
                   }}
                 />
               </Grid>
@@ -306,10 +306,10 @@ const CreatePayment = () => {
                   onChange={handleChange}
                   className="input"
                   InputProps={{
-                    className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className: "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:border-gray-800 "
                   }}
                   InputLabelProps={{
-                    className: "text-gray-600 dark:text-gray-400"
+                    className: "text-gray-600 dark:text-gray-300 "
                   }}
                 />
               </Grid>

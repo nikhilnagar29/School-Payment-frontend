@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { transactionsAPI } from '../services/api';
 import {
-  Container,
   Typography,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -24,6 +22,7 @@ import {
   SelectChangeEvent,
   Button
 } from '@mui/material';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 // List of available schools
 const AVAILABLE_SCHOOLS = [
@@ -134,128 +133,286 @@ const SchoolTransactions = () => {
     return new Date(dateString).toLocaleString();
   };
 
+  // Get status color classes
+  const getStatusClasses = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'success':
+        return 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100';
+      case 'pending':
+        return 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100';
+      case 'failed':
+        return 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-100';
+      default:
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100';
+    }
+  };
+
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" component="h1" gutterBottom>
-        School Transactions
-      </Typography>
-      <Typography variant="subtitle1" color="textSecondary" className='text-gray-600 dark:text-gray-400' gutterBottom>
-        School ID: {schoolId}
-      </Typography>
+    <div className="p-4 m-[-10px] rounded-lg bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+      <div className="absolute top-4 right-4">
+        <DarkModeToggle />
+      </div>
       
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      
-      {/* Filters */}
-      <Paper sx={{ p: 2, mb: 3 }} className='bg-gray-100 dark:bg-gray-700'>
-        <Grid container spacing={2} alignItems="center" >
-          <Grid item xs={12} sm={4} >
-            <FormControl fullWidth size="small" className='bg-gray-100 dark:bg-gray-700'>
-              <InputLabel id="school-select-label" className='text-gray-600 dark:text-gray-300'>School</InputLabel>
-              <Select
-                labelId="school-select-label"
-                value={selectedSchool}
-                label="School"
-                onChange={handleSchoolChange}
-                className='text-gray-900 dark:text-gray-100'  
-              >
-                {AVAILABLE_SCHOOLS.map(school => (
-                  <MenuItem key={school.id} className='text-gray-900 dark:text-gray-100 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700' value={school.id}>
-                    {school.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              select
-              label="Status"
-              value={status}
-              onChange={handleStatusChange}
-              fullWidth
-              size="small"
+      <div className="max-w-7xl mx-auto">
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          gutterBottom
+          className="text-gray-900 dark:text-gray-100 font-semibold"
+        >
+          School Transactions
+        </Typography>
+        
+        <Typography 
+          variant="subtitle1" 
+          className="text-gray-600 dark:text-gray-400 mb-8 p-2"
+        >
+          School ID: {schoolId}
+        </Typography>
+        
+        {error && (
+          <div className="mb-4">
+            <Alert 
+              severity="error" 
+              className="bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-100"
             >
-              <MenuItem value="">All</MenuItem>
-              <MenuItem value="success">Success</MenuItem>
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="failed">Failed</MenuItem>
-            </TextField>
+              {error}
+            </Alert>
+          </div>
+        )}
+        
+        {/* Filters */}
+        <div className="p-4 mb-6 bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-200">
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small" className="input">
+                <InputLabel 
+                  id="school-select-label" 
+                  className="text-gray-600 dark:text-gray-400"
+                >
+                  School
+                </InputLabel>
+                <Select
+                  labelId="school-select-label"
+                  value={selectedSchool}
+                  label="School"
+                  onChange={handleSchoolChange}
+                  className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  MenuProps={{
+                    PaperProps: {
+                      className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    }
+                  }}
+                >
+                  {AVAILABLE_SCHOOLS.map(school => (
+                    <MenuItem 
+                      key={school.id} 
+                      value={school.id}
+                      className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      
+                    >
+                      {school.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                select
+                label="Status"
+                value={status}
+                onChange={handleStatusChange}
+                fullWidth
+                size="small"
+                className="input dark:bg-gray-700"
+                InputProps={{
+                  className: "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                }}
+                InputLabelProps={{
+                  className: "text-gray-600 dark:text-gray-200"
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100",
+                      sx: {
+                        
+                      }
+                    }
+                  }
+                }}
+              >
+                <MenuItem 
+                  value="" 
+                  className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  sx={{
+                    '&.MuiMenuItem-root': {
+                      backgroundColor: 'inherit', 
+                      color: 'inherit',
+                    }
+                  }}
+                >
+                  All
+                </MenuItem>
+                <MenuItem 
+                  value="success" 
+                  className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  sx={{
+                    '&.MuiMenuItem-root': {
+                      backgroundColor: 'inherit', 
+                      color: 'inherit',
+                    }
+                  }}
+                >
+                  Success
+                </MenuItem>
+                <MenuItem 
+                  value="pending" 
+                  className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  sx={{
+                    '&.MuiMenuItem-root': {
+                      backgroundColor: 'inherit', 
+                      color: 'inherit',
+                    }
+                  }}
+                >
+                  Pending
+                </MenuItem>
+                <MenuItem 
+                  value="failed" 
+                  className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  sx={{
+                    '&.MuiMenuItem-root': {
+                      backgroundColor: 'inherit', 
+                      color: 'inherit',
+                    }
+                  }}
+                >
+                  Failed
+                </MenuItem>
+              </TextField>
+            </Grid>
           </Grid>
-        </Grid>
-      </Paper>
-      
-      {/* Transactions Table */}
-      <Paper>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Order ID</TableCell>
-                <TableCell>Student</TableCell>
-                <TableCell>Amount</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Payment Mode</TableCell>
-                <TableCell>Date</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    <CircularProgress />
-                  </TableCell>
+        </div>
+        
+        {/* Transactions Table */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-200">
+          <TableContainer className="rounded-t-lg">
+            <Table sx={{
+              '& .MuiTableCell-root': {
+                color: 'inherit',
+                borderColor: 'inherit'
+              },
+              
+              '& .MuiTableRow-root.Mui-selected': {
+                backgroundColor: 'rgb(243 244 246 / 1)',
+              }
+
+            }}>
+              <TableHead>
+                <TableRow className="bg-gray-100 dark:bg-gray-700">
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">Order ID</TableCell>
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">Student</TableCell>
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">Amount</TableCell>
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">Status</TableCell>
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">Payment Mode</TableCell>
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">Date</TableCell>
                 </TableRow>
-              ) : transactions.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    No transactions found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                transactions.map((transaction) => (
-                  <TableRow 
-                    key={transaction._id}
-                    hover
-                    onClick={() => navigate(`/transactions/${transaction._id}`)}
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    <TableCell>{transaction.custom_order_id}</TableCell>
-                    <TableCell>{transaction.student_info?.names || 'N/A'}</TableCell>
-                    <TableCell>₹{transaction.order_amount?.toLocaleString() || '0'}</TableCell>
-                    <TableCell>
-                      <Box
-                        sx={{
-                          px: 1,
-                          py: 0.5,
-                          borderRadius: 1,
-                          display: 'inline-block',
-                          backgroundColor: 
-                            transaction.status === 'success' ? '#e8f5e9' : 
-                            transaction.status === 'pending' ? '#fff8e1' : '#ffebee',
-                        }}
-                      >
-                        {transaction.status.toUpperCase()}
-                      </Box>
+              </TableHead>
+              <TableBody sx={{
+                '& .MuiTableRow-root:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  '@media (prefers-color-scheme: dark)': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  }
+                }
+              }}>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" className="py-8 border-b border-gray-200 dark:border-gray-700">
+                      <CircularProgress size={30} className="text-primary-600 dark:text-primary-400" />
+                      <Typography variant="body2" className="mt-2 text-gray-600 dark:text-gray-400">Loading transactions...</Typography>
                     </TableCell>
-                    <TableCell>{transaction.payment_mode || 'N/A'}</TableCell>
-                    <TableCell>{formatDate(transaction.payment_time)}</TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={pagination.totalRecords}
-          rowsPerPage={limit}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-    </Container>
+                ) : transactions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" className="py-8 border-b border-gray-200 dark:border-gray-700">
+                      <Typography variant="body1" className="text-gray-800 dark:text-gray-200">No transactions found</Typography>
+                      <Typography variant="body2" className="text-gray-500 dark:text-gray-400">
+                        Try adjusting your filters or select a different school
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  transactions.map((transaction) => (
+                    <TableRow 
+                      key={transaction._id}
+                      hover
+                      onClick={() => navigate(`/transactions/${transaction._id}`)}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 text-gray-800 dark:text-gray-200"
+                      
+                    >
+                      <TableCell className="border-b border-gray-200 dark:border-gray-700">{transaction.custom_order_id}</TableCell>
+                      <TableCell className="border-b border-gray-200 dark:border-gray-700">{transaction.student_info?.names || 'N/A'}</TableCell>
+                      <TableCell className="border-b border-gray-200 dark:border-gray-700">₹{transaction.order_amount?.toLocaleString() || '0'}</TableCell>
+                      <TableCell className="border-b border-gray-200 dark:border-gray-700">
+                        <span className={`px-3 py-1 rounded inline-block font-medium ${getStatusClasses(transaction.status)}`}>
+                          {transaction.status.toUpperCase()}
+                        </span>
+                      </TableCell>
+                      <TableCell className="border-b border-gray-200 dark:border-gray-700">{transaction.payment_mode || 'N/A'}</TableCell>
+                      <TableCell className="border-b border-gray-200 dark:border-gray-700">{formatDate(transaction.payment_time)}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={pagination.totalRecords}
+            rowsPerPage={limit}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            className="text-gray-800 dark:text-gray-200 border-t border-gray-200 dark:border-gray-700"
+            sx={{
+              color: 'inherit',
+              '& .MuiToolbar-root': {
+                color: 'inherit'
+              },
+              '& .MuiTablePagination-select': {
+                color: 'inherit'
+              },
+              '& .MuiTablePagination-selectIcon': {
+                color: 'inherit'
+              },
+              '& .MuiTablePagination-actions': {
+                color: 'inherit'
+              },
+              '& .MuiIconButton-root': {
+                color: 'inherit'
+              },
+              '& .MuiSelect-select': {
+                backgroundColor: 'transparent !important'
+              },
+              '& .MuiSelect-icon': {
+                color: 'inherit'
+              },
+              '& .MuiMenu-paper': {
+                backgroundColor: 'var(--paper-background)',
+                color: 'var(--text-primary)'
+              },
+              '& .MuiMenuItem-root': {
+                color: 'inherit'
+              }
+            }}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 

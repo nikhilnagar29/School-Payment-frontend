@@ -351,7 +351,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 min-h-screen transition-colors duration-200">
+    <div className="p-4 m-[-10px] rounded-lg bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
       
       
       <div className="max-w-7xl mx-auto">
@@ -535,7 +535,16 @@ const Dashboard = () => {
         {/* Transactions Table */}
         <div className="bg-white  dark:bg-gray-800 rounded-lg shadow transition-colors duration-200">
           <TableContainer className='rounded-lg'>
-            <Table>
+            <Table
+            sx={{
+              '& .MuiTableCell-root': {
+                color: 'inherit',
+                borderColor: 'inherit'
+              },
+              
+              
+            }}
+            >
               <TableHead>
                 <TableRow className="bg-gray-100 dark:bg-gray-700">
                   <TableCell className="font-semibold text-gray-800 dark:text-gray-200">Order ID</TableCell>
@@ -546,7 +555,7 @@ const Dashboard = () => {
                   <TableCell className="font-semibold text-gray-800 dark:text-gray-200">Date</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody className='bg-gray-50 dark:bg-gray-700'>
+              <TableBody className='bg-gray-50 dark:bg-gray-800'>
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center" className="py-8">
