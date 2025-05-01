@@ -66,13 +66,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ListItemButton>
         </ListItem>
         
-        {user?.schools?.length > 0 && user?.schools.map((school: any) => (
-          <ListItem key={school._id || `school-${school.id || Math.random().toString()}`} disablePadding>
-            <ListItemButton component={Link} to={`/schools/${school._id || school.id}`}>
+        {user?.schools?.length > 0 && user?.schools.map((school: any, index: number) => (
+          <ListItem key={school._id || `school-${index}`} disablePadding>
+            <ListItemButton component={Link} to={`/schools/${school || school.id}`}>
               <ListItemIcon>
                 <SchoolIcon />
               </ListItemIcon>
-              <ListItemText primary={school.name || `School ${school._id || school.id}`} />
+              <ListItemText primary={school.name || `School ${index + 1}`} />
             </ListItemButton>
           </ListItem>
         ))}

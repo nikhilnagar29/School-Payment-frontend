@@ -63,7 +63,7 @@ export const paymentsAPI = {
 export const transactionsAPI = {
   getAllTransactions: (params: any = {}) => {
     console.log('[API Request] Getting transactions with params:', params);
-    return api.get('/api/transactions/test', { params });
+    return api.get('/api/transactions', { params });
   },
   getTransactionById: (id: string) => {
     console.log('[API Request] Getting transaction details:', id);
