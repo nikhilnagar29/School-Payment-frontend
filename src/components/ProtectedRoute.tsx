@@ -20,7 +20,9 @@ const ProtectedRoute = () => {
   // If authenticated, render the protected route inside the layout
   return (
     <Layout>
+
       <Outlet />
+
     </Layout>
   );
 };

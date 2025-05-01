@@ -105,12 +105,10 @@ const CreatePayment = () => {
   };
 
   return (
-    <div className="p-4 bg-gray-50 rounded-lg m-[-10px] dark:bg-gray-900 min-h-screen transition-colors duration-200">
-      <div className="absolute top-4 right-4">
-        <DarkModeToggle />
-      </div>
+    <div className="p-4  rounded-lg m-[-10px] dark:bg-gray-900 min-h-screen transition-colors duration-200">
       
-      <div className="max-w-3xl mx-auto">
+      
+      <div className="max-w-3xl mx-auto ">
         <Typography 
           variant="h4" 
           component="h1" 
