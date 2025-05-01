@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { transactionsAPI } from '../services/api';
 import {
-  Container,
   Typography,
-  Paper,
   Box,
   Grid,
   Divider,
@@ -21,6 +19,7 @@ import {
   TableContainer,
   TableRow
 } from '@mui/material';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 interface TransactionDetail {
   id: string;
@@ -139,289 +138,378 @@ const TransactionDetail = () => {
     return new Date(dateString).toLocaleString();
   };
 
-  // Get status color
-  const getStatusColor = (status: string) => {
+  // Get status color for dark and light modes
+  const getStatusColors = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'success':
-        return { bg: '#e8f5e9', text: '#1b5e20' };
+        return { 
+          bg: 'bg-green-100 dark:bg-green-800',
+          text: 'text-green-800 dark:text-green-100'
+        };
       case 'pending':
-        return { bg: '#fff8e1', text: '#f57f17' };
+        return { 
+          bg: 'bg-yellow-100 dark:bg-yellow-800',
+          text: 'text-yellow-800 dark:text-yellow-100'
+        };
       case 'failed':
-        return { bg: '#ffebee', text: '#c62828' };
+        return { 
+          bg: 'bg-red-100 dark:bg-red-800',
+          text: 'text-red-800 dark:text-red-100'
+        };
       default:
-        return { bg: '#f5f5f5', text: '#757575' };
+        return { 
+          bg: 'bg-gray-100 dark:bg-gray-700',
+          text: 'text-gray-800 dark:text-gray-300'
+        };
     }
   };
 
   // Render loading state
   if (loading) {
     return (
-      <Container maxWidth="md">
-        <Box sx={{ mt: 4, mb: 2 }}>
-          <Skeleton variant="text" width="60%" height={40} />
-          <Skeleton variant="text" width="40%" height={30} sx={{ mb: 2 }} />
-        </Box>
-        <Paper sx={{ p: 3 }}>
-          <Grid container spacing={3}>
-            {[1, 2, 3, 4, 5, 6].map(item => (
-              <Grid item xs={12} sm={6} key={item}>
-                <Skeleton variant="text" width="50%" height={20} />
-                <Skeleton variant="text" width="70%" height={30} />
-              </Grid>
-            ))}
-          </Grid>
-        </Paper>
-      </Container>
+      <div className="p-4 m-[-10px] rounded-lg bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+        <div className="absolute top-4 right-4">
+          <DarkModeToggle />
+        </div>
+        
+        <div className="max-w-3xl mx-auto mt-8 mb-4">
+          <Skeleton 
+            variant="text" 
+            width="60%" 
+            height={40} 
+            className="bg-gray-200 dark:bg-gray-700" 
+          />
+          <Skeleton 
+            variant="text" 
+            width="40%" 
+            height={30} 
+            className="mb-4 bg-gray-200 dark:bg-gray-700" 
+          />
+          
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+            <Grid container spacing={3}>
+              {[1, 2, 3, 4, 5, 6].map(item => (
+                <Grid item xs={12} sm={6} key={item}>
+                  <Skeleton 
+                    variant="text" 
+                    width="50%" 
+                    height={20} 
+                    className="bg-gray-200 dark:bg-gray-700" 
+                  />
+                  <Skeleton 
+                    variant="text" 
+                    width="70%" 
+                    height={30} 
+                    className="bg-gray-200 dark:bg-gray-700" 
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </div>
+        </div>
+      </div>
     );
   }
 
   // Render error state
   if (error && !transaction) {
     return (
-      <Container maxWidth="md">
-        <Alert 
-          severity="error" 
-          sx={{ mt: 4 }}
-          action={
-            <Button color="inherit" size="small" onClick={handleToggleMockData}>
-              {useMockData ? 'Try API' : 'Use Mock Data'}
-            </Button>
-          }
-        >
-          {error}
-        </Alert>
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
-          <Button 
-            component={Link} 
-            to="/transactions"
-            variant="outlined"
+      <div className="p-4 m-[-10px] rounded-lg bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+        <div className="absolute top-4 right-4">
+          <DarkModeToggle />
+        </div>
+        
+        <div className="max-w-3xl mx-auto mt-8">
+          <Alert 
+            severity="error" 
+            className="mt-4 bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-100"
+            action={
+              <Button 
+                color="inherit" 
+                size="small" 
+                onClick={handleToggleMockData}
+                className="text-inherit"
+              >
+                {useMockData ? 'Try API' : 'Use Mock Data'}
+              </Button>
+            }
           >
-            Back to Transactions
-          </Button>
-        </Box>
-      </Container>
+            {error}
+          </Alert>
+          <div className="mt-4 flex justify-center">
+            <Button 
+              component={Link} 
+              to="/transactions"
+              variant="outlined"
+              className="border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400"
+            >
+              Back to Transactions
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   }
 
   // Render no data state
   if (!transaction) {
     return (
-      <Container maxWidth="md">
-        <Alert severity="info" sx={{ mt: 4 }}>
-          No transaction data found. The transaction may have been deleted or may not exist.
-        </Alert>
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
-          <Button 
-            component={Link} 
-            to="/transactions"
-            variant="outlined"
-          >
-            Back to Transactions
-          </Button>
-        </Box>
-      </Container>
+      <div className="p-4 m-[-10px] rounded-lg bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+        <div className="absolute top-4 right-4">
+          <DarkModeToggle />
+        </div>
+        
+        <div className="max-w-3xl mx-auto mt-8">
+          <Alert severity="info" className="mt-4 bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-100">
+            No transaction data found. The transaction may have been deleted or may not exist.
+          </Alert>
+          <div className="mt-4 flex justify-center">
+            <Button 
+              component={Link} 
+              to="/transactions"
+              variant="outlined"
+              className="border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400"
+            >
+              Back to Transactions
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   }
 
   // Get status colors
-  const statusColors = getStatusColor(transaction.status);
+  const statusColors = getStatusColors(transaction.status);
 
   return (
-    <Container maxWidth="md">
-      {/* Header */}
-      <Box sx={{ mb: 3, mt: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Transaction Details
-        </Typography>
-        <Typography variant="subtitle1" color="text.secondary">
-          {transaction.custom_order_id}
-        </Typography>
-      </Box>
-
-      {error && (
-        <Alert 
-          severity="warning" 
-          sx={{ mb: 3 }}
-          action={
-            <Button color="inherit" size="small" onClick={handleToggleMockData}>
-              {useMockData ? 'Try API' : 'Use Mock Data'}
-            </Button>
-          }
-        >
-          {error}
-        </Alert>
-      )}
-
-      {/* Status Card */}
-      <Card sx={{ mb: 3, borderRadius: 2, boxShadow: 2 }}>
-        <CardContent sx={{ textAlign: 'center', py: 3 }}>
-          <Box sx={{ mb: 2 }}>
-            <Chip 
-              label={transaction.status.toUpperCase()}
-              sx={{ 
-                fontSize: '1rem', 
-                fontWeight: 'bold',
-                py: 2.5,
-                px: 1.5,
-                backgroundColor: statusColors.bg,
-                color: statusColors.text
-              }}
-            />
-          </Box>
-          <Typography variant="h5" sx={{ fontWeight: 'medium' }}>
-            {formatCurrency(transaction.transaction_amount)}
+    <div className="p-4 m-[-10px] rounded-lg bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+      <div className="absolute top-4 right-4">
+        <DarkModeToggle />
+      </div>
+      
+      <div className="max-w-3xl mx-auto">
+        {/* Header */}
+        <div className="mb-6 mt-8">
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom
+            className="text-gray-900 dark:text-gray-100 font-semibold"
+          >
+            Transaction Details
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            {formatDate(transaction.payment_time)}
+          <Typography 
+            variant="subtitle1" 
+            className="text-gray-600 dark:text-gray-400"
+          >
+            {transaction.custom_order_id}
           </Typography>
-          
-          {transaction.payment_message && (
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                mt: 2,
-                color: statusColors.text,
-                fontWeight: 'medium'
-              }}
+        </div>
+
+        {error && (
+          <div className="mb-6">
+            <Alert 
+              severity="warning" 
+              className="bg-yellow-50 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-100"
+              action={
+                <Button 
+                  color="inherit" 
+                  size="small" 
+                  onClick={handleToggleMockData}
+                  className="text-inherit"
+                >
+                  {useMockData ? 'Try API' : 'Use Mock Data'}
+                </Button>
+              }
             >
-              {transaction.payment_message}
+              {error}
+            </Alert>
+          </div>
+        )}
+
+        {/* Status Card */}
+        <Card className="mb-6 rounded-lg shadow-md bg-white dark:bg-gray-800 transition-colors duration-200">
+          <CardContent className="text-center py-6">
+            <div className="mb-4">
+              <Chip 
+                label={transaction.status.toUpperCase()}
+                className={`text-base font-bold py-2.5 px-3 ${statusColors.bg} ${statusColors.text}`}
+              />
+            </div>
+            <Typography 
+              variant="h5" 
+              className="font-medium text-gray-900 dark:text-gray-100"
+            >
+              {formatCurrency(transaction.transaction_amount)}
             </Typography>
-          )}
-          
-          {transaction.error_message && (
             <Typography 
               variant="body2" 
-              color="error" 
-              sx={{ mt: 1 }}
+              className="mt-2 text-gray-500 dark:text-gray-400"
             >
-              {transaction.error_message}
+              {formatDate(transaction.payment_time)}
             </Typography>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Transaction Details */}
-      <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          Transaction Information
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        
-        <TableContainer>
-          <Table>
-            <TableBody>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', width: '40%' }}>Transaction ID</TableCell>
-                <TableCell>{transaction.id}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Order ID</TableCell>
-                <TableCell>{transaction.custom_order_id}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Payment Gateway</TableCell>
-                <TableCell>{transaction.gateway}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Payment Mode</TableCell>
-                <TableCell>{transaction.payment_mode}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Bank Reference</TableCell>
-                <TableCell>{transaction.bank_reference || 'N/A'}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Payment Details</TableCell>
-                <TableCell>{transaction.payment_details || 'N/A'}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>School ID</TableCell>
-                <TableCell>{transaction.school_id}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Collection ID</TableCell>
-                <TableCell>{transaction.collect_id}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-
-      {/* Student Details */}
-      <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          Student Information
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        
-        <TableContainer>
-          <Table>
-            <TableBody>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', width: '40%' }}>Name</TableCell>
-                <TableCell>{transaction.student_info?.names || 'N/A'}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Student ID</TableCell>
-                <TableCell>{transaction.student_info?.id || 'N/A'}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>Email</TableCell>
-                <TableCell>{transaction.student_info?.email || 'N/A'}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-
-      {/* Payment Link */}
-      {transaction.payment_link && (
-        <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Payment Link
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          
-          <Box sx={{ mt: 2, mb: 1 }}>
-            <div className='text-wrap'>
-              <Typography variant="body2" className='text-wrap' sx={{ wordBreak: 'break-all' }}>
-                {transaction.payment_link.substring(0, 75)}...
+            
+            {transaction.payment_message && (
+              <Typography 
+                variant="body1" 
+                className={`mt-4 font-medium ${statusColors.text}`}
+              >
+                {transaction.payment_message}
               </Typography>
-            </div>
-          </Box>
+            )}
+            
+            {transaction.error_message && (
+              <Typography 
+                variant="body2" 
+                className="mt-2 text-red-600 dark:text-red-400"
+              >
+                {transaction.error_message}
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Transaction Details */}
+        <div className="mb-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-200">
+          <Typography 
+            variant="h6" 
+            gutterBottom
+            className="text-gray-800 dark:text-gray-200"
+          >
+            Transaction Information
+          </Typography>
+          <Divider className="mb-4 bg-gray-200 dark:bg-gray-700" />
           
+          <TableContainer>
+            <Table>
+              <TableBody>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold w-2/5 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">Transaction ID</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.id}</TableCell>
+                </TableRow>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">Order ID</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.custom_order_id}</TableCell>
+                </TableRow>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">Payment Gateway</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.gateway}</TableCell>
+                </TableRow>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">Payment Mode</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.payment_mode}</TableCell>
+                </TableRow>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">Bank Reference</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.bank_reference || 'N/A'}</TableCell>
+                </TableRow>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">Payment Details</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.payment_details || 'N/A'}</TableCell>
+                </TableRow>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">School ID</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.school_id}</TableCell>
+                </TableRow>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">Collection ID</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.collect_id}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+
+        {/* Student Details */}
+        <div className="mb-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-200">
+          <Typography 
+            variant="h6" 
+            gutterBottom
+            className="text-gray-800 dark:text-gray-200"
+          >
+            Student Information
+          </Typography>
+          <Divider className="mb-4 bg-gray-200 dark:bg-gray-700" />
+          
+          <TableContainer>
+            <Table>
+              <TableBody>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold w-2/5 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">Name</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.student_info?.names || 'N/A'}</TableCell>
+                </TableRow>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">Student ID</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.student_info?.id || 'N/A'}</TableCell>
+                </TableRow>
+                <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                  <TableCell className="font-bold text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">Email</TableCell>
+                  <TableCell className="text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700">{transaction.student_info?.email || 'N/A'}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+
+        {/* Payment Link */}
+        {transaction.payment_link && (
+          <div className="mb-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-200">
+            <Typography 
+              variant="h6" 
+              gutterBottom
+              className="text-gray-800 dark:text-gray-200"
+            >
+              Payment Link
+            </Typography>
+            <Divider className="mb-4 bg-gray-200 dark:bg-gray-700" />
+            
+            <div className="mt-4 mb-2">
+              <div className='text-wrap'>
+                <Typography 
+                  variant="body2" 
+                  className='text-wrap text-gray-700 dark:text-gray-300'
+                  sx={{ wordBreak: 'break-all' }}
+                >
+                  {transaction.payment_link.substring(0, 75)}...
+                </Typography>
+              </div>
+            </div>
+            
+            <Button 
+              variant="outlined" 
+              component="a"
+              href={transaction.payment_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400"
+            >
+              Open Payment Link
+            </Button>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex justify-between mt-8 mb-10">
           <Button 
             variant="outlined" 
-            component="a"
-            href={transaction.payment_link}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ mt: 1 }}
+            component={Link}
+            to={`/school/${transaction.school_id}/transactions`}
+            className="border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400"
           >
-            Open Payment Link
+            School Transactions
           </Button>
-        </Paper>
-      )}
-
-      {/* Action Buttons */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4, mb: 5 }}>
-        <Button 
-          variant="outlined" 
-          component={Link}
-          to={`/school/${transaction.school_id}/transactions`}
-        >
-          School Transactions
-        </Button>
-        
-        <Button 
-          variant="contained" 
-          component={Link}
-          to="/transactions"
-        >
-          All Transactions
-        </Button>
-      </Box>
-    </Container>
+          
+          <Button 
+            variant="contained" 
+            component={Link}
+            to="/transactions"
+            className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800"
+          >
+            All Transactions
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 
