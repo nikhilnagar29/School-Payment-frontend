@@ -8,8 +8,8 @@ export default defineConfig({
     outDir: 'build',
   },
   server: {
-    // Enable SPA fallback in dev mode
     proxy: {},
+    historyApiFallback: true,
     open: true
   },
 })

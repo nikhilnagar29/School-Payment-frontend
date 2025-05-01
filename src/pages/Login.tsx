@@ -10,7 +10,8 @@ import {
   Button, 
   Paper, 
   Alert,
-  CircularProgress 
+  CircularProgress,
+  Divider
 } from '@mui/material';
 
 const Login = () => {
@@ -121,6 +122,11 @@ const Login = () => {
     }
   };
 
+  const useDemoAccount = () => {
+    setEmail('trustee4@kv.com');
+    setPassword('password');
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <Box
@@ -203,6 +209,26 @@ const Login = () => {
                 'Sign In'
               )}
             </Button>
+            
+            <Divider sx={{ my: 2 }}>or</Divider>
+            
+            <Alert severity="info" sx={{ mb: 2 }}>
+              <Typography variant="body2">
+                <strong>Demo Account:</strong><br />
+                Email: trustee4@kv.com<br />
+                Password: password
+              </Typography>
+              <Button 
+                size="small" 
+                variant="outlined" 
+                onClick={useDemoAccount} 
+                sx={{ mt: 1 }}
+                fullWidth
+              >
+                Use Demo Account
+              </Button>
+            </Alert>
+            
             <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Link to="/register">
                 <Typography variant="body2">

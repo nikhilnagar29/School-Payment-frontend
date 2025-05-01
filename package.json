@@ -33,7 +33,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:render": "tsc && vite build && (cp public/_redirects build/ || echo '/* /index.html 200' > build/_redirects) && (cd build && touch .keep)",
+    "build:render": "tsc && vite build && cp -f public/_redirects build/ && mkdir -p build/web && echo '{\"root\":\"/\",\"clean_urls\":true,\"routes\":{\"/**\":\"index.html\"},\"https_only\":true}' > build/static.json && (cd build && touch .keep)",
     "preview": "vite preview",
     "postinstall": "npm install -g serve"
   },
