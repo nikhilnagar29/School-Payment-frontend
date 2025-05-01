@@ -592,7 +592,7 @@ const Dashboard = () => {
                       <TableRow 
                         key={transaction._id || transaction.collect_id} 
                         hover
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 text-gray-800 dark:text-gray-200"
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 text-gray-800 dark:text-gray-200 transition-all duration-200 transform hover:scale-[1.02]"
                         onClick={() => handleRowClick(transaction)}
                       >
                         <TableCell className="border-b  border-gray-200 text-gray-800 dark:text-gray-200 dark:border-gray-700">{transaction.custom_order_id.substring(0, 10)}...</TableCell>
