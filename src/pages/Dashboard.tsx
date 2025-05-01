@@ -2,10 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { transactionsAPI, isDevelopment } from '../services/api';
 import {
-  Container,
   Typography,
-  Paper,
-  Box,
   Table,
   TableBody,
   TableCell,
@@ -17,11 +14,13 @@ import {
   TextField,
   MenuItem,
   Grid,
-  Card,
-  CardContent,
   CircularProgress,
-  Alert
+  Alert,
+  Box,
+  Card,
+  CardContent
 } from '@mui/material';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 interface Transaction {
   _id: string;
@@ -352,225 +351,286 @@ const Dashboard = () => {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" component="h1" gutterBottom>
-        Dashboard
-      </Typography>
+    <div className="p-4 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+      <div className="absolute top-4 right-4">
+        <DarkModeToggle />
+      </div>
       
-      {error && (
-        <Alert 
-          severity={useMockData ? "info" : "error"} 
-          sx={{ mb: 2 }}
-          action={
-            isDevelopment() && (
-              <Button 
-                color="inherit" 
-                size="small" 
-                onClick={toggleMockData}
-              >
-                {useMockData ? 'Try API' : 'Use Mock Data'}
-              </Button>
-            )
-          }
+      <div className="max-w-7xl mx-auto">
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          gutterBottom
+          className="text-gray-900 dark:text-gray-100 font-semibold"
         >
-          {error}
-        </Alert>
-      )}
-      
-      {isDevelopment() && !error && (
-        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
-          <Button 
-            size="small" 
-            variant="outlined" 
-            onClick={toggleMockData}
-          >
-            {useMockData ? 'Using Mock Data' : 'Using API Data'}
-          </Button>
-        </Box>
-      )}
-      
-      {/* Summary Cards */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" gutterBottom>
-          Transaction Summary
+          Dashboard
         </Typography>
-        <Grid container spacing={3}>
-          {loading ? (
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
-              <CircularProgress />
-            </Grid>
-          ) : (
-            <>
-              {summary.length === 0 ? (
-                <Grid item xs={12}>
-                  <Alert severity="info">No transaction data available.</Alert>
-                </Grid>
-              ) : (
-                summary.map((item) => (
-                  <Grid item xs={12} sm={4} key={item.status}>
-                    <Card sx={{ 
-                      backgroundColor: getStatusColor(item.status),
-                      boxShadow: 2,
-                      transition: 'transform 0.2s',
-                      '&:hover': {
-                        transform: 'scale(1.02)',
-                        boxShadow: 3
-                      }
-                    }}>
+        
+        {error && (
+          <div className="mb-4">
+            <Alert 
+              severity={useMockData ? "info" : "error"} 
+              className={`mb-4 ${useMockData ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-100' : 'bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-100'}`}
+              action={
+                isDevelopment() && (
+                  <Button 
+                    color="inherit" 
+                    size="small" 
+                    onClick={toggleMockData}
+                    className="text-inherit"
+                  >
+                    {useMockData ? 'Try API' : 'Use Mock Data'}
+                  </Button>
+                )
+              }
+            >
+              {error}
+            </Alert>
+          </div>
+        )}
+        
+        {isDevelopment() && !error && (
+          <div className="mb-4 flex justify-end">
+            <Button 
+              size="small" 
+              variant="outlined" 
+              onClick={toggleMockData}
+              className="border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400"
+            >
+              {useMockData ? 'Using Mock Data' : 'Using API Data'}
+            </Button>
+          </div>
+        )}
+        
+        {/* Summary Cards */}
+        <div className="mb-8">
+          <Typography 
+            variant="h6" 
+            gutterBottom
+            className="text-gray-800 dark:text-gray-200"
+          >
+            Transaction Summary
+          </Typography>
+          <Grid container spacing={3}>
+            {loading ? (
+              <Grid item xs={12} className="flex justify-center py-8">
+                <CircularProgress className="text-primary-600 dark:text-primary-400" />
+              </Grid>
+            ) : (
+              <>
+                {summary.length === 0 ? (
+                  <Grid item xs={12}>
+                    <Alert severity="info" className="bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-100">
+                      No transaction data available.
+                    </Alert>
+                  </Grid>
+                ) : (
+                  summary.map((item) => {
+                    // Transform status colors for dark mode
+                    const statusColorClasses = {
+                      success: 'bg-green-100 dark:bg-green-800',
+                      pending: 'bg-yellow-100 dark:bg-yellow-800',
+                      failed: 'bg-red-100 dark:bg-red-800',
+                    };
+                    
+                    const colorClass = statusColorClasses[item.status.toLowerCase() as keyof typeof statusColorClasses] || 'bg-gray-100 dark:bg-gray-800';
+                    
+                    return (
+                      <Grid item xs={12} sm={4} key={item.status}>
+                        <Card className={`${colorClass} shadow hover:shadow-md transition-all duration-200 transform hover:scale-[1.02]`}>
+                          <CardContent>
+                            <Typography 
+                              className="text-gray-700 dark:text-gray-300" 
+                              gutterBottom
+                            >
+                              {item.status.toUpperCase()}
+                            </Typography>
+                            <Typography 
+                              variant="h5" 
+                              component="div"
+                              className="text-gray-900 dark:text-gray-100"
+                            >
+                              {item.count} Transactions
+                            </Typography>
+                            <Typography 
+                              variant="body2"
+                              className="text-gray-600 dark:text-gray-400"
+                            >
+                              Amount: ₹{formatNumber(item.totalAmount)}
+                            </Typography>
+                            <Typography 
+                              variant="body2" 
+                              fontWeight="bold"
+                              className="text-gray-800 dark:text-gray-200"
+                            >
+                              {item.percentage}% of total
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    );
+                  })
+                )}
+                
+                {totals && (
+                  <Grid item xs={12}>
+                    <Card className="bg-blue-100 dark:bg-blue-900 shadow">
                       <CardContent>
-                        <Typography color="textSecondary" gutterBottom>
-                          {item.status.toUpperCase()}
+                        <Typography 
+                          variant="h6" 
+                          component="div"
+                          className="text-blue-900 dark:text-blue-100"
+                        >
+                          Total Transactions: {totals.totalTransactions}
                         </Typography>
-                        <Typography variant="h5" component="div">
-                          {item.count} Transactions
+                        <Typography 
+                          variant="body1"
+                          className="text-blue-800 dark:text-blue-200"
+                        >
+                          Total Amount: ₹{formatNumber(totals.totalAmount)}
                         </Typography>
-                        <Typography variant="body2">
-                          Amount: ₹{formatNumber(item.totalAmount)}
-                        </Typography>
-                        <Typography variant="body2" fontWeight="bold">
-                          {item.percentage}% of total
+                        <Typography 
+                          variant="body1" 
+                          fontWeight="bold"
+                          className="text-blue-900 dark:text-blue-100"
+                        >
+                          Success Rate: {totals.successRate}%
                         </Typography>
                       </CardContent>
                     </Card>
                   </Grid>
-                ))
-              )}
-              
-              {totals && (
-                <Grid item xs={12}>
-                  <Card sx={{ backgroundColor: '#e3f2fd', boxShadow: 2 }}>
-                    <CardContent>
-                      <Typography variant="h6" component="div">
-                        Total Transactions: {totals.totalTransactions}
-                      </Typography>
-                      <Typography variant="body1">
-                        Total Amount: ₹{formatNumber(totals.totalAmount)}
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        Success Rate: {totals.successRate}%
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )}
-            </>
-          )}
-        </Grid>
-      </Box>
-      
-      {/* Filters */}
-      <Paper sx={{ p: 2, mb: 3, boxShadow: 2 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={4}>
-            <TextField
-              select
-              label="Status"
-              value={status}
-              onChange={handleStatusChange}
-              fullWidth
-              size="small"
-            >
-              <MenuItem value="">All</MenuItem>
-              <MenuItem value="success">Success</MenuItem>
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="failed">Failed</MenuItem>
-            </TextField>
+                )}
+              </>
+            )}
           </Grid>
-          <Grid item xs={12} sm={4}>
-            <Button 
-              variant="contained" 
-              color="primary"
-              component="a"
-              href="/payments/create"
-              startIcon={<span>+</span>}
-              sx={{ textTransform: 'none' }}
-            >
-              Create New Payment
-            </Button>
+        </div>
+        
+        {/* Filters */}
+        <div className="p-4 mb-6 bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-200">
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={4}>
+              <TextField
+                select
+                label="Status"
+                value={status}
+                onChange={handleStatusChange}
+                fullWidth
+                size="small"
+                className="input"
+                InputProps={{
+                  className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                }}
+                InputLabelProps={{
+                  className: "text-gray-600 dark:text-gray-400"
+                }}
+              >
+                <MenuItem value="" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">All</MenuItem>
+                <MenuItem value="success" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Success</MenuItem>
+                <MenuItem value="pending" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Pending</MenuItem>
+                <MenuItem value="failed" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Failed</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Button 
+                variant="contained" 
+                color="primary"
+                component="a"
+                href="/payments/create"
+                startIcon={<span>+</span>}
+                className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 normal-case"
+              >
+                Create New Payment
+              </Button>
+            </Grid>
           </Grid>
-        </Grid>
-      </Paper>
-      
-      {/* Transactions Table */}
-      <Paper sx={{ boxShadow: 2 }}>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                <TableCell><strong>Order ID</strong></TableCell>
-                <TableCell><strong>Student</strong></TableCell>
-                <TableCell><strong>Amount</strong></TableCell>
-                <TableCell><strong>Status</strong></TableCell>
-                <TableCell><strong>Payment Mode</strong></TableCell>
-                <TableCell><strong>Date</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                    <CircularProgress size={30} />
-                    <Typography variant="body2" sx={{ mt: 1 }}>Loading transactions...</Typography>
-                  </TableCell>
+        </div>
+        
+        {/* Transactions Table */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-200">
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow className="bg-gray-100 dark:bg-gray-700">
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200">Order ID</TableCell>
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200">Student</TableCell>
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200">Amount</TableCell>
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200">Status</TableCell>
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200">Payment Mode</TableCell>
+                  <TableCell className="font-semibold text-gray-800 dark:text-gray-200">Date</TableCell>
                 </TableRow>
-              ) : transactions.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1">No transactions found</Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      Try adjusting your filters or create a new payment
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                transactions.map((transaction) => (
-                  <TableRow 
-                    key={transaction._id || transaction.collect_id} 
-                    hover
-                    sx={{ 
-                      '&:hover': { backgroundColor: '#f9f9f9' },
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => handleRowClick(transaction)}
-                  >
-                    <TableCell>{transaction.custom_order_id}</TableCell>
-                    <TableCell>{transaction.student_info?.names || 'N/A'}</TableCell>
-                    <TableCell>₹{formatNumber(transaction.order_amount)}</TableCell>
-                    <TableCell>
-                      <Box
-                        sx={{
-                          px: 1.5,
-                          py: 0.5,
-                          borderRadius: 1,
-                          display: 'inline-block',
-                          backgroundColor: getStatusColor(transaction.status),
-                          fontWeight: 'medium'
-                        }}
-                      >
-                        {transaction.status.toUpperCase()}
-                      </Box>
+              </TableHead>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" className="py-8">
+                      <CircularProgress size={30} className="text-primary-600 dark:text-primary-400" />
+                      <Typography variant="body2" className="mt-2 text-gray-600 dark:text-gray-400">Loading transactions...</Typography>
                     </TableCell>
-                    <TableCell>{transaction.payment_mode || 'N/A'}</TableCell>
-                    <TableCell>{formatDate(transaction.payment_time)}</TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          component="div"
-          count={totalCount}
-          rowsPerPage={limit}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Rows:"
-        />
-      </Paper>
-    </Container>
+                ) : transactions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" className="py-8">
+                      <Typography variant="body1" className="text-gray-800 dark:text-gray-200">No transactions found</Typography>
+                      <Typography variant="body2" className="text-gray-500 dark:text-gray-400">
+                        Try adjusting your filters or create a new payment
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  transactions.map((transaction) => {
+                    // Transform status colors for dark mode
+                    const getStatusClasses = (status: string) => {
+                      switch (status.toLowerCase()) {
+                        case 'success':
+                          return 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100';
+                        case 'pending':
+                          return 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100';
+                        case 'failed':
+                          return 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-100';
+                        default:
+                          return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100';
+                      }
+                    };
+                    
+                    return (
+                      <TableRow 
+                        key={transaction._id || transaction.collect_id} 
+                        hover
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 text-gray-800 dark:text-gray-200"
+                        onClick={() => handleRowClick(transaction)}
+                      >
+                        <TableCell className="border-b border-gray-200 dark:border-gray-700">{transaction.custom_order_id}</TableCell>
+                        <TableCell className="border-b border-gray-200 dark:border-gray-700">{transaction.student_info?.names || 'N/A'}</TableCell>
+                        <TableCell className="border-b border-gray-200 dark:border-gray-700">₹{formatNumber(transaction.order_amount)}</TableCell>
+                        <TableCell className="border-b border-gray-200 dark:border-gray-700">
+                          <span className={`px-3 py-1 rounded inline-block font-medium ${getStatusClasses(transaction.status)}`}>
+                            {transaction.status.toUpperCase()}
+                          </span>
+                        </TableCell>
+                        <TableCell className="border-b border-gray-200 dark:border-gray-700">{transaction.payment_mode || 'N/A'}</TableCell>
+                        <TableCell className="border-b border-gray-200 dark:border-gray-700">{formatDate(transaction.payment_time)}</TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            component="div"
+            count={totalCount}
+            rowsPerPage={limit}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage="Rows:"
+            className="text-gray-800 dark:text-gray-200 border-t border-gray-200 dark:border-gray-700"
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

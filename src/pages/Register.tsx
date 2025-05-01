@@ -2,20 +2,19 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { 
-  Container, 
-  Box, 
   Typography, 
   TextField, 
   Button, 
-  Paper, 
   Alert, 
   MenuItem,
   FormControl,
   InputLabel,
   Select,
   SelectChangeEvent,
-  Chip
+  Chip,
+  Box
 } from '@mui/material';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -93,31 +92,56 @@ const Register = () => {
   ];
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography component="h1" variant="h5" align="center" gutterBottom>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      {/* Dark mode toggle in the top right */}
+      <div className="absolute top-4 right-4">
+        <DarkModeToggle />
+      </div>
+      
+      <div className="w-full max-w-md">
+        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-8 transition-colors duration-200">
+          <Typography 
+            component="h1" 
+            variant="h5" 
+            align="center" 
+            gutterBottom
+            className="text-gray-900 dark:text-gray-100 font-semibold"
+          >
             School Payment & Dashboard
           </Typography>
-          <Typography component="h2" variant="h6" align="center" sx={{ mb: 3 }}>
+          
+          <Typography 
+            component="h2" 
+            variant="h6" 
+            align="center" 
+            className="mb-6 text-gray-800 dark:text-gray-200"
+          >
             Register
           </Typography>
           
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          {success && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              Registration successful! Redirecting to login...
-            </Alert>
+          {error && (
+            <div className="mb-4">
+              <Alert 
+                severity="error" 
+                className="bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-100"
+              >
+                {error}
+              </Alert>
+            </div>
           )}
           
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          {success && (
+            <div className="mb-4">
+              <Alert 
+                severity="success" 
+                className="bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-100"
+              >
+                Registration successful! Redirecting to login...
+              </Alert>
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
             <TextField
               margin="normal"
               required
@@ -129,7 +153,15 @@ const Register = () => {
               autoFocus
               value={formData.name}
               onChange={handleChange}
+              className="input"
+              InputProps={{
+                className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              }}
+              InputLabelProps={{
+                className: "text-gray-600 dark:text-gray-400"
+              }}
             />
+            
             <TextField
               margin="normal"
               required
@@ -140,7 +172,15 @@ const Register = () => {
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
+              className="input"
+              InputProps={{
+                className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              }}
+              InputLabelProps={{
+                className: "text-gray-600 dark:text-gray-400"
+              }}
             />
+            
             <TextField
               margin="normal"
               required
@@ -152,7 +192,15 @@ const Register = () => {
               autoComplete="new-password"
               value={formData.password}
               onChange={handleChange}
+              className="input"
+              InputProps={{
+                className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              }}
+              InputLabelProps={{
+                className: "text-gray-600 dark:text-gray-400"
+              }}
             />
+            
             <TextField
               margin="normal"
               required
@@ -163,24 +211,42 @@ const Register = () => {
               id="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              className="input"
+              InputProps={{
+                className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              }}
+              InputLabelProps={{
+                className: "text-gray-600 dark:text-gray-400"
+              }}
             />
             
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="role-label">Role</InputLabel>
+            <FormControl fullWidth margin="normal" className="input">
+              <InputLabel 
+                id="role-label"
+                className="text-gray-600 dark:text-gray-400"
+              >
+                Role
+              </InputLabel>
               <Select
                 labelId="role-label"
                 id="role"
                 value={formData.role}
                 label="Role"
                 onChange={handleRoleChange}
+                className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
-                <MenuItem value="admin">Admin</MenuItem>
-                <MenuItem value="trustee">Trustee</MenuItem>
+                <MenuItem value="admin" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Admin</MenuItem>
+                <MenuItem value="trustee" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Trustee</MenuItem>
               </Select>
             </FormControl>
             
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="schools-label">Schools</InputLabel>
+            <FormControl fullWidth margin="normal" className="input">
+              <InputLabel 
+                id="schools-label"
+                className="text-gray-600 dark:text-gray-400"
+              >
+                Schools
+              </InputLabel>
               <Select
                 labelId="schools-label"
                 id="schools"
@@ -188,17 +254,28 @@ const Register = () => {
                 value={formData.school_id}
                 onChange={handleSchoolChange}
                 label="Schools"
+                className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  <Box className="flex flex-wrap gap-1">
                     {selected.map((value) => {
                       const school = schoolOptions.find(s => s.id === value);
-                      return <Chip key={value} label={school?.name || value} />;
+                      return (
+                        <Chip 
+                          key={value} 
+                          label={school?.name || value} 
+                          className="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-100"
+                        />
+                      );
                     })}
                   </Box>
                 )}
               >
                 {schoolOptions.map((school) => (
-                  <MenuItem key={school.id} value={school.id}>
+                  <MenuItem 
+                    key={school.id} 
+                    value={school.id}
+                    className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
                     {school.name}
                   </MenuItem>
                 ))}
@@ -209,23 +286,24 @@ const Register = () => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
+              className="mt-6 bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 transition-colors duration-200"
+              disabled={loading || success}
             >
               {loading ? 'Registering...' : 'Register'}
             </Button>
             
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
-              <Link to="/login">
-                <Typography variant="body2">
-                  Already have an account? Login
-                </Typography>
+            <div className="mt-4 text-center">
+              <Link 
+                to="/login" 
+                className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm transition-colors duration-200"
+              >
+                Already have an account? Login
               </Link>
-            </Box>
-          </Box>
-        </Paper>
-      </Box>
-    </Container>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 
