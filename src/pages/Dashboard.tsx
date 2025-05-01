@@ -351,10 +351,8 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-4 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
-      <div className="absolute top-4 right-4">
-        <DarkModeToggle />
-      </div>
+    <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 min-h-screen transition-colors duration-200">
+      
       
       <div className="max-w-7xl mx-auto">
         <Typography 
@@ -438,7 +436,7 @@ const Dashboard = () => {
                     return (
                       <Grid item xs={12} sm={4} key={item.status}>
                         <Card className={`${colorClass} shadow hover:shadow-md transition-all duration-200 transform hover:scale-[1.02]`}>
-                          <CardContent>
+                          <CardContent className={`${colorClass}`}>
                             <Typography 
                               className="text-gray-700 dark:text-gray-300" 
                               gutterBottom
@@ -474,8 +472,8 @@ const Dashboard = () => {
                 
                 {totals && (
                   <Grid item xs={12}>
-                    <Card className="bg-blue-100 dark:bg-blue-900 shadow">
-                      <CardContent>
+                    <Card className="bg-blue-100 dark:bg-blue-700 shadow">
+                      <CardContent className='bg-blue-100 dark:bg-blue-700'>
                         <Typography 
                           variant="h6" 
                           component="div"
@@ -507,7 +505,7 @@ const Dashboard = () => {
         
         {/* Filters */}
         <div className="p-4 mb-6 bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-200">
-          <Grid container spacing={2} alignItems="center">
+          <Grid container spacing={2} alignItems="center" >
             <Grid item xs={12} sm={4}>
               <TextField
                 select
@@ -516,38 +514,27 @@ const Dashboard = () => {
                 onChange={handleStatusChange}
                 fullWidth
                 size="small"
-                className="input"
+                className="input dark:bg-gray-700"
                 InputProps={{
-                  className: "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className: "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 }}
                 InputLabelProps={{
-                  className: "text-gray-600 dark:text-gray-400"
+                  className: "text-gray-600 dark:text-gray-200 "
                 }}
               >
-                <MenuItem value="" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">All</MenuItem>
-                <MenuItem value="success" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Success</MenuItem>
-                <MenuItem value="pending" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Pending</MenuItem>
-                <MenuItem value="failed" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Failed</MenuItem>
+                <MenuItem value="all" className="text-gray-900 dark:text-gray-100 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">All</MenuItem>
+                <MenuItem value="success" className="text-gray-900 dark:text-gray-100 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Success</MenuItem>
+                <MenuItem value="pending" className="text-gray-900 dark:text-gray-100 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Pending</MenuItem>
+                <MenuItem value="failed" className="text-gray-900 dark:text-gray-100 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Failed</MenuItem>
               </TextField>
             </Grid>
-            <Grid item xs={12} sm={4}>
-              <Button 
-                variant="contained" 
-                color="primary"
-                component="a"
-                href="/payments/create"
-                startIcon={<span>+</span>}
-                className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 normal-case"
-              >
-                Create New Payment
-              </Button>
-            </Grid>
+            
           </Grid>
         </div>
         
         {/* Transactions Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-200">
-          <TableContainer>
+        <div className="bg-white  dark:bg-gray-800 rounded-lg shadow transition-colors duration-200">
+          <TableContainer className='rounded-lg'>
             <Table>
               <TableHead>
                 <TableRow className="bg-gray-100 dark:bg-gray-700">
@@ -559,7 +546,7 @@ const Dashboard = () => {
                   <TableCell className="font-semibold text-gray-800 dark:text-gray-200">Date</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
+              <TableBody className='bg-gray-50 dark:bg-gray-700'>
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center" className="py-8">
@@ -599,16 +586,16 @@ const Dashboard = () => {
                         className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 text-gray-800 dark:text-gray-200"
                         onClick={() => handleRowClick(transaction)}
                       >
-                        <TableCell className="border-b border-gray-200 dark:border-gray-700">{transaction.custom_order_id}</TableCell>
-                        <TableCell className="border-b border-gray-200 dark:border-gray-700">{transaction.student_info?.names || 'N/A'}</TableCell>
-                        <TableCell className="border-b border-gray-200 dark:border-gray-700">₹{formatNumber(transaction.order_amount)}</TableCell>
-                        <TableCell className="border-b border-gray-200 dark:border-gray-700">
+                        <TableCell className="border-b  border-gray-200 text-gray-800 dark:text-gray-200 dark:border-gray-700">{transaction.custom_order_id.substring(0, 10)}...</TableCell>
+                        <TableCell className="border-b border-gray-200 text-gray-800 dark:text-gray-200 dark:border-gray-700">{transaction.student_info?.names || 'N/A'}</TableCell>
+                        <TableCell className="border-b border-gray-200 text-gray-800 dark:text-gray-200 dark:border-gray-700">₹{formatNumber(transaction.order_amount)}</TableCell>
+                        <TableCell className="border-b border-gray-200 text-gray-800 dark:text-gray-200 dark:border-gray-700">
                           <span className={`px-3 py-1 rounded inline-block font-medium ${getStatusClasses(transaction.status)}`}>
                             {transaction.status.toUpperCase()}
                           </span>
                         </TableCell>
-                        <TableCell className="border-b border-gray-200 dark:border-gray-700">{transaction.payment_mode || 'N/A'}</TableCell>
-                        <TableCell className="border-b border-gray-200 dark:border-gray-700">{formatDate(transaction.payment_time)}</TableCell>
+                        <TableCell className="border-b border-gray-200 text-gray-800 dark:text-gray-200 dark:border-gray-700">{transaction.payment_mode || 'N/A'}</TableCell>
+                        <TableCell className="border-b border-gray-200 text-gray-800 dark:text-gray-200 dark:border-gray-700">{formatDate(transaction.payment_time)}</TableCell>
                       </TableRow>
                     );
                   })
@@ -616,17 +603,19 @@ const Dashboard = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25, 50]}
-            component="div"
-            count={totalCount}
-            rowsPerPage={limit}
-            page={page}
+          <div className='flex justify-end border-gray-200 dark:text-gray-200 dark:border-gray-400'>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25, 50]}
+              component="div"
+              count={totalCount}
+              rowsPerPage={limit}
+              page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             labelRowsPerPage="Rows:"
-            className="text-gray-800 dark:text-gray-200 border-t border-gray-200 dark:border-gray-700"
+            className="text-gray-800  border-t border-gray-200 dark:text-gray-200 dark:border-gray-400"
           />
+          </div>
         </div>
       </div>
     </div>

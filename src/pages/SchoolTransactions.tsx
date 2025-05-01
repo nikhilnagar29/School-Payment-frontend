@@ -139,26 +139,27 @@ const SchoolTransactions = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         School Transactions
       </Typography>
-      <Typography variant="subtitle1" color="textSecondary" gutterBottom>
+      <Typography variant="subtitle1" color="textSecondary" className='text-gray-600 dark:text-gray-400' gutterBottom>
         School ID: {schoolId}
       </Typography>
       
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       
       {/* Filters */}
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="school-select-label">School</InputLabel>
+      <Paper sx={{ p: 2, mb: 3 }} className='bg-gray-100 dark:bg-gray-700'>
+        <Grid container spacing={2} alignItems="center" >
+          <Grid item xs={12} sm={4} >
+            <FormControl fullWidth size="small" className='bg-gray-100 dark:bg-gray-700'>
+              <InputLabel id="school-select-label" className='text-gray-600 dark:text-gray-300'>School</InputLabel>
               <Select
                 labelId="school-select-label"
                 value={selectedSchool}
                 label="School"
                 onChange={handleSchoolChange}
+                className='text-gray-900 dark:text-gray-100'  
               >
                 {AVAILABLE_SCHOOLS.map(school => (
-                  <MenuItem key={school.id} value={school.id}>
+                  <MenuItem key={school.id} className='text-gray-900 dark:text-gray-100 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700' value={school.id}>
                     {school.name}
                   </MenuItem>
                 ))}
