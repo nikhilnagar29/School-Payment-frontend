@@ -1,196 +1,223 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { transactionsAPI } from '../services/api';
 import {
   Container,
   Typography,
   Paper,
   Box,
-  Grid,
+  Divider,
   Button,
+  Chip,
   CircularProgress,
   Alert,
-  Divider,
-  Chip
+  Grid
 } from '@mui/material';
+import {
+  CheckCircle as SuccessIcon,
+  Error as FailedIcon,
+  Pending as PendingIcon,
+  HomeOutlined as HomeIcon
+} from '@mui/icons-material';
+import { transactionsAPI } from '../services/api';
+import Layout from '../components/Layout';
 
-interface TransactionDetails {
-  custom_order_id: string;
-  status: string;
-  payment_time: string;
-  payment_mode: string;
-  transaction_amount: number;
-  payment_message: string;
-  error_message: string | null;
-  bank_reference: string;
-}
+// Define status color and icon mapping
+const statusConfig: Record<string, { color: "success" | "error" | "warning" | "default", icon: JSX.Element }> = {
+  success: { color: "success", icon: <SuccessIcon /> },
+  failed: { color: "error", icon: <FailedIcon /> },
+  pending: { color: "warning", icon: <PendingIcon /> },
+  default: { color: "default", icon: <PendingIcon /> }
+};
 
 const TransactionStatus = () => {
-  const { custom_order_id } = useParams<{ custom_order_id: string }>();
-  const [transaction, setTransaction] = useState<TransactionDetails | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Get the order ID from the URL params
+  const { id: customOrderId } = useParams<{ id: string }>();
+  
+  // State variables
+  const [transactionDetails, setTransactionDetails] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch transaction status on component mount
   useEffect(() => {
     const fetchTransactionStatus = async () => {
-      if (!custom_order_id) return;
-      
-      setLoading(true);
-      setError(null);
-      
       try {
-        const response = await transactionsAPI.checkTransactionStatus(custom_order_id);
-        setTransaction(response.data.transaction);
+        if (!customOrderId) {
+          setError('Order ID is required');
+          setLoading(false);
+          return;
+        }
+
+        console.log(`Fetching status for order ID: ${customOrderId}`);
+        const response = await transactionsAPI.checkTransactionStatus(customOrderId);
+        console.log('Transaction status response:', response);
+        
+        if (response && response.data) {
+          setTransactionDetails(response.data);
+        } else {
+          setError('No transaction found for this order ID');
+        }
       } catch (err: any) {
-        setError(err.response?.data?.error || 'Failed to fetch transaction status');
+        console.error('Error fetching transaction status:', err);
+        setError(err.message || 'Failed to fetch transaction status');
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchTransactionStatus();
-  }, [custom_order_id]);
 
-  // Format date
+    fetchTransactionStatus();
+  }, [customOrderId]);
+
+  // Format amount to display with currency
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
+    }).format(amount);
+  };
+
+  // Format date to a readable format
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleString();
+    
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
   };
 
-  // Get status color
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'success':
-        return '#4caf50';
-      case 'pending':
-        return '#ff9800';
-      case 'failed':
-        return '#f44336';
-      default:
-        return '#757575';
-    }
+  // Get status configuration based on transaction status
+  const getStatusConfig = (status: string) => {
+    const lowerStatus = status?.toLowerCase();
+    return statusConfig[lowerStatus] || statusConfig.default;
   };
-
-  if (loading) {
-    return (
-      <Container maxWidth="sm" sx={{ textAlign: 'center', py: 8 }}>
-        <CircularProgress />
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          Fetching transaction status...
-        </Typography>
-      </Container>
-    );
-  }
 
   return (
-    <Container maxWidth="md">
-      <Typography variant="h4" component="h1" gutterBottom>
-        Transaction Status
-      </Typography>
-      
-      {error ? (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-          <Box sx={{ mt: 2 }}>
-            <Button 
-              component={Link} 
-              to="/transactions/check-status"
-              variant="outlined"
-              size="small"
-            >
-              Try Another ID
-            </Button>
+    <Layout>
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Transaction Status
+          </Typography>
+          <Button
+            component={Link}
+            to="/check-status"
+            startIcon={<HomeIcon />}
+            variant="outlined"
+          >
+            Check Another
+          </Button>
+        </Box>
+
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <CircularProgress />
           </Box>
-        </Alert>
-      ) : !transaction ? (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          Transaction not found or invalid Order ID.
-          <Box sx={{ mt: 2 }}>
-            <Button 
-              component={Link} 
-              to="/transactions/check-status"
-              variant="outlined"
-              size="small"
-            >
-              Try Another ID
-            </Button>
-          </Box>
-        </Alert>
-      ) : (
-        <Paper sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6">
-              Order: {transaction.custom_order_id}
-            </Typography>
-            <Chip 
-              label={transaction.status.toUpperCase()} 
-              sx={{ 
-                backgroundColor: getStatusColor(transaction.status),
-                color: 'white',
-                fontWeight: 'bold'
-              }}
-            />
-          </Box>
-          
-          <Divider sx={{ my: 2 }} />
-          
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body2" color="textSecondary">Amount</Typography>
-              <Typography variant="body1">₹{transaction.transaction_amount.toLocaleString()}</Typography>
-            </Grid>
-            
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body2" color="textSecondary">Payment Method</Typography>
-              <Typography variant="body1">{transaction.payment_mode || 'N/A'}</Typography>
-            </Grid>
-            
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body2" color="textSecondary">Payment Time</Typography>
-              <Typography variant="body1">{formatDate(transaction.payment_time)}</Typography>
-            </Grid>
-            
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body2" color="textSecondary">Reference ID</Typography>
-              <Typography variant="body1">{transaction.bank_reference || 'N/A'}</Typography>
-            </Grid>
-            
-            {transaction.payment_message && (
-              <Grid item xs={12}>
-                <Typography variant="body2" color="textSecondary">Payment Message</Typography>
-                <Typography variant="body1">{transaction.payment_message}</Typography>
+        ) : error ? (
+          <Alert severity="error" sx={{ mb: 4 }}>
+            {error}
+          </Alert>
+        ) : transactionDetails ? (
+          <Paper sx={{ p: 4 }} elevation={2} className="bg-white dark:bg-gray-800">
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h6">
+                Order ID: {transactionDetails.custom_order_id}
+              </Typography>
+              {transactionDetails.status && (
+                <Chip
+                  label={transactionDetails.status.toUpperCase()}
+                  color={getStatusConfig(transactionDetails.status).color}
+                  icon={getStatusConfig(transactionDetails.status).icon}
+                  size="medium"
+                />
+              )}
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Amount
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 2 }}>
+                  {transactionDetails.transaction_amount ? formatAmount(transactionDetails.transaction_amount) : 'N/A'}
+                </Typography>
               </Grid>
-            )}
-            
-            {transaction.error_message && (
-              <Grid item xs={12}>
-                <Alert severity="error" sx={{ mt: 2 }}>
-                  {transaction.error_message}
-                </Alert>
+
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Payment Time
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 2 }}>
+                  {transactionDetails.payment_time ? formatDate(transactionDetails.payment_time) : 'N/A'}
+                </Typography>
               </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Payment Mode
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 2 }}>
+                  {transactionDetails.payment_mode || 'N/A'}
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Bank Reference
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 2 }}>
+                  {transactionDetails.bank_reference || 'N/A'}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            <Divider sx={{ my: 2 }} />
+
+            {transactionDetails.payment_message && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                {transactionDetails.payment_message}
+              </Alert>
             )}
-          </Grid>
-          
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-            <Button 
-              component={Link} 
-              to="/transactions/check-status"
-              variant="outlined"
-            >
-              Check Another Transaction
-            </Button>
-            
-            <Button 
-              component={Link} 
-              to="/dashboard"
-              variant="contained"
-            >
-              Back to Dashboard
-            </Button>
-          </Box>
-        </Paper>
-      )}
-    </Container>
+
+            {transactionDetails.error_message && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {transactionDetails.error_message}
+              </Alert>
+            )}
+
+            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
+              <Button
+                component={Link}
+                to="/check-status"
+                variant="outlined"
+              >
+                Check Another Transaction
+              </Button>
+              
+              {transactionDetails.status === 'pending' && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => window.location.reload()}
+                >
+                  Refresh Status
+                </Button>
+              )}
+            </Box>
+          </Paper>
+        ) : (
+          <Alert severity="info">
+            No transaction information available for this order ID. Please check if the order ID is correct.
+          </Alert>
+        )}
+      </Container>
+    </Layout>
   );
 };
 

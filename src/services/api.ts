@@ -85,9 +85,36 @@ export const transactionsAPI = {
     console.log('[API Request] Getting transaction summary');
     return api.get('/api/transactions/summary');
   },
-  checkTransactionStatus: (customOrderId: string) => {
-    console.log('[API Request] Checking transaction status:', customOrderId);
-    return api.get(`/api/transactions/status/${customOrderId}`);
+  checkTransactionStatus: async (orderId: string) => {
+    console.log(`Checking transaction status for order ID: ${orderId}`);
+    try {
+      const response = await api.get(`/api/transactions/status/${orderId}`);
+      console.log('Transaction status API response:', response);
+      return response;
+    } catch (error) {
+      console.error('Error checking transaction status:', error);
+      if (isDevelopment()) {
+        console.log('Using mock data for transaction status');
+        // Return mock transaction status data
+        const mockStatuses = ['success', 'pending', 'failed'];
+        const mockStatus = mockStatuses[Math.floor(Math.random() * mockStatuses.length)];
+        
+        return {
+          data: {
+            custom_order_id: orderId,
+            status: mockStatus,
+            payment_time: mockStatus === 'pending' ? null : new Date().toISOString(),
+            payment_mode: mockStatus === 'pending' ? null : ['UPI', 'Credit Card', 'Net Banking'][Math.floor(Math.random() * 3)],
+            transaction_amount: Math.floor(Math.random() * 10000) + 500,
+            payment_message: mockStatus === 'success' ? 'Payment processed successfully' : 
+                           mockStatus === 'pending' ? 'Payment is being processed' : null,
+            error_message: mockStatus === 'failed' ? 'Payment was declined by the bank' : null,
+            bank_reference: mockStatus === 'success' ? `REF${Math.floor(Math.random() * 1000000)}` : null
+          }
+        };
+      }
+      throw error;
+    }
   },
   
   // Format API response to match our expected format

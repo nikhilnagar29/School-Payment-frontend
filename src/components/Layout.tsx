@@ -30,7 +30,9 @@ import {
   Logout as LogoutIcon,
   LightMode as LightModeIcon,
   DarkMode as DarkModeIcon,
-  ViewList as TransactionsIcon
+  ViewList as TransactionsIcon,
+  Receipt as ReceiptIcon,
+  Payment as PaymentIcon
 } from '@mui/icons-material';
 import DarkModeToggle from './DarkModeToggle';
 
@@ -116,6 +118,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return false;
   };
 
+  const menuItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+    { text: 'Transactions', icon: <ReceiptIcon />, path: '/transactions' },
+    { text: 'School Transactions', icon: <SchoolIcon />, path: '/school/transactions' },
+    { text: 'Create Payment', icon: <PaymentIcon />, path: '/payments/create' },
+    { text: 'Check Status', icon: <SearchIcon />, path: '/check-status' },
+  
+  ];
+
   const drawer = (
     <div className="h-full dark:bg-gray-800 transition-colors duration-200">
       <Toolbar className="dark:bg-gray-800">
@@ -130,124 +141,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </Toolbar>
       <Divider className="dark:border-gray-700" />
       <List className="py-2">
-        <ListItem key="dashboard" disablePadding>
-          <ListItemButton 
-            component={Link} 
-            to="/dashboard"
-            className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
-              isActive('/dashboard') ? 'bg-gray-100 dark:bg-gray-700' : ''
-            }`}
-            onClick={() => isMobile && setMobileOpen(false)}
-          >
-            <ListItemIcon className="min-w-10 text-primary-600 dark:text-primary-400">
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Dashboard" 
-              className="text-gray-900 dark:text-gray-100"
-            />
-          </ListItemButton>
-        </ListItem>
-        
-        {/* <ListItem key="all-transactions" disablePadding>
-          <ListItemButton 
-            component={Link} 
-            to="/transactions"
-            className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
-              location.pathname === '/transactions' ? 'bg-gray-100 dark:bg-gray-700' : ''
-            }`}
-            onClick={() => isMobile && setMobileOpen(false)}
-          >
-            <ListItemIcon className="min-w-10 text-primary-600 dark:text-primary-400">
-              <TransactionsIcon />
-            </ListItemIcon>
-            <ListItemText 
-              primary="All Transactions" 
-              className="text-gray-900 dark:text-gray-100"
-            />
-          </ListItemButton>
-        </ListItem> */}
-        
-        {user?.schools?.length > 0 && user?.schools.map((school: any, index: number) => (
-          <ListItem key={school._id || `school-${index}`} disablePadding>
+        {menuItems.map((item) => (
+          <ListItem key={item.path} disablePadding>
             <ListItemButton 
               component={Link} 
-              to={`/schools/${school || school.id}`}
+              to={item.path}
               className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
-                isActive(`/schools/${school || school.id}`) ? 'bg-gray-100 dark:bg-gray-700' : ''
+                isActive(item.path) ? 'bg-gray-100 dark:bg-gray-700' : ''
               }`}
               onClick={() => isMobile && setMobileOpen(false)}
             >
               <ListItemIcon className="min-w-10 text-primary-600 dark:text-primary-400">
-                <SchoolIcon />
+                {item.icon}
               </ListItemIcon>
               <ListItemText 
-                primary={school.name || `School ${index + 1}`} 
+                primary={item.text} 
                 className="text-gray-900 dark:text-gray-100"
               />
             </ListItemButton>
           </ListItem>
         ))}
-
-        <ListItem key="create-payment" disablePadding>
-          <ListItemButton 
-            component={Link} 
-            to="/payments/create"
-            className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
-              location.pathname === '/payments/create' ? 'bg-gray-100 dark:bg-gray-700' : ''
-            }`}
-            onClick={() => isMobile && setMobileOpen(false)}
-          >
-            <ListItemIcon className="min-w-10 text-primary-600 dark:text-primary-400">
-              <PaymentsIcon />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Create Payment" 
-              className="text-gray-900 dark:text-gray-100"
-            />
-          </ListItemButton>
-        </ListItem>
-
-        {/* <ListItem key="check-status" disablePadding>
-          <ListItemButton 
-            component={Link} 
-            to="/transactions/check-status"
-            className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
-              location.pathname === '/transactions/check-status' ? 'bg-gray-100 dark:bg-gray-700' : ''
-            }`}
-            onClick={() => isMobile && setMobileOpen(false)}
-          >
-            <ListItemIcon className="min-w-10 text-primary-600 dark:text-primary-400">
-              <SearchIcon />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Check Status" 
-              className="text-gray-900 dark:text-gray-100"
-            />
-          </ListItemButton>
-        </ListItem> */}
       </List>
       <Divider className="dark:border-gray-700" />
       <List className="py-2">
-        {/* <ListItem key="settings" disablePadding>
-          <ListItemButton 
-            component={Link} 
-            to="/settings"
-            className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
-              location.pathname === '/settings' ? 'bg-gray-100 dark:bg-gray-700' : ''
-            }`}
-            onClick={() => isMobile && setMobileOpen(false)}
-          >
-            <ListItemIcon className="min-w-10 text-primary-600 dark:text-primary-400">
-              <SettingsIcon />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Settings" 
-              className="text-gray-900 dark:text-gray-100"
-            />
-          </ListItemButton>
-        </ListItem> */}
-        
         <ListItem key="dark-mode" disablePadding>
           <ListItemButton 
             onClick={toggleDarkMode}

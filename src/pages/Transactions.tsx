@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { transactionsAPI, isDevelopment } from '../services/api';
+import Layout from '../components/Layout';
 import {
-  Container,
   Typography,
   Paper,
   Table,
@@ -24,8 +24,15 @@ import {
   SelectChangeEvent,
   Button,
   Switch,
-  FormControlLabel
+  FormControlLabel,
+  Chip
 } from '@mui/material';
+import {
+  FilterList as FilterIcon,
+  Refresh as RefreshIcon,
+  ArrowUpward as AscIcon,
+  ArrowDownward as DescIcon
+} from '@mui/icons-material';
 
 interface Transaction {
   _id: string;
@@ -85,7 +92,7 @@ const Transactions = () => {
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [useMockData, setUseMockData] = useState(true); // Start with mock data by default
+  const [useMockData, setUseMockData] = useState(false); // Start with mock data by default
 
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -104,82 +111,88 @@ const Transactions = () => {
     setUseMockData(!useMockData);
   };
 
+  // Refresh data
+  const handleRefresh = () => {
+    setLoading(true);
+    fetchData();
+  };
+
   // Fetch data when component mounts or when useMockData changes
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      
-      if (useMockData) {
-        // Use mock data
-        try {
-          console.log("Using mock data for transactions");
-          
-          // Generate mock transactions
-          const mockData = createMockTransactions();
-          setTransactions(mockData);
-          
-          // Simulate API delay
-          await new Promise(resolve => setTimeout(resolve, 500));
-        } catch (err: any) {
-          console.error('Error creating mock data:', err);
-          setError('Failed to create mock data');
-        } finally {
-          setLoading(false);
-        }
-        return;
-      }
-      
-      // Try to fetch real data from API
+    fetchData();
+  }, [useMockData]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    if (useMockData) {
+      // Use mock data
       try {
-        console.log("Fetching all transactions");
+        console.log("Using mock data for transactions");
         
-        const response = await transactionsAPI.getAllTransactions({
-          page: 1,
-          limit: 100 // Get more data for client-side filtering
-        });
+        // Generate mock transactions
+        const mockData = createMockTransactions();
+        setTransactions(mockData);
         
-        console.log("API Response:", response.data);
-        
-        // Handle different response formats
-        if (response.data && Array.isArray(response.data.data)) {
-          // New format with data array
-          setTransactions(response.data.data);
-        } else if (response.data && Array.isArray(response.data)) {
-          // Direct array format
-          setTransactions(response.data);
-        } else if (response.data && Array.isArray(response.data.transactions)) {
-          // Old format with transactions array
-          setTransactions(response.data.transactions);
-        } else {
-          console.error("Unexpected API response format:", response.data);
-          setError("Unexpected data format received from API");
-          setTransactions([]);
-        }
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 500));
       } catch (err: any) {
-        console.error('Error fetching transactions:', err);
-        
-        if (err.message === 'Network Error') {
-          setError('Network error: Cannot connect to the backend server. Using mock data instead.');
-          
-          // Automatically switch to mock data
-          setUseMockData(true);
-          const mockData = createMockTransactions();
-          setTransactions(mockData);
-        } else {
-          setError(`API error: ${err.message || 'Failed to load transactions'}`);
-          
-          // Still show some mock data
-          const mockData = createMockTransactions();
-          setTransactions(mockData);
-        }
+        console.error('Error creating mock data:', err);
+        setError('Failed to create mock data');
       } finally {
         setLoading(false);
       }
-    };
+      return;
+    }
     
-    fetchData();
-  }, [useMockData]);
+    // Try to fetch real data from API
+    try {
+      console.log("Fetching all transactions");
+      
+      const response = await transactionsAPI.getAllTransactions({
+        page: 1,
+        limit: 100 // Get more data for client-side filtering
+      });
+      
+      console.log("API Response:", response.data);
+      
+      // Handle different response formats
+      if (response.data && Array.isArray(response.data.data)) {
+        // New format with data array
+        setTransactions(response.data.data);
+      } else if (response.data && Array.isArray(response.data)) {
+        // Direct array format
+        setTransactions(response.data);
+      } else if (response.data && Array.isArray(response.data.transactions)) {
+        // Old format with transactions array
+        setTransactions(response.data.transactions);
+      } else {
+        console.error("Unexpected API response format:", response.data);
+        setError("Unexpected data format received from API");
+        setTransactions([]);
+      }
+    } catch (err: any) {
+      console.error('Error fetching transactions:', err);
+      
+      if (err.message === 'Network Error') {
+        setError('Network error: Cannot connect to the backend server. Using mock data instead.');
+        
+        // Automatically switch to mock data
+        setUseMockData(true);
+        const mockData = createMockTransactions();
+        setTransactions(mockData);
+      } else {
+        setError(`API error: ${err.message || 'Failed to load transactions'}`);
+        
+        // Still show some mock data
+        const mockData = createMockTransactions();
+        setTransactions(mockData);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Apply filters and sorting whenever relevant states change
   useEffect(() => {
@@ -297,211 +310,320 @@ const Transactions = () => {
     return amount !== undefined ? `₹${amount.toLocaleString()}` : 'N/A';
   };
 
-  // Get status color
-  const getStatusColor = (status: string) => {
+  // Get status color classes
+  const getStatusClasses = (status: string) => {
     switch (status.toLowerCase()) {
       case 'success':
-        return '#e8f5e9';
+        return 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100';
       case 'pending':
-        return '#fff8e1';
+        return 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100';
       case 'failed':
-        return '#ffebee';
+        return 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-100';
       default:
-        return '#f5f5f5';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100';
     }
   };
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" component="h1" gutterBottom>
-        All Transactions
-      </Typography>
-      
-      {error && (
-        <Alert 
-          severity="warning" 
-          sx={{ mb: 2 }}
-          action={
-            <Button color="inherit" size="small" onClick={handleToggleMockData}>
-              {useMockData ? 'Try API' : 'Use Mock Data'}
-            </Button>
-          }
-        >
-          {error}
-        </Alert>
-      )}
-      
-      {isDevelopment() && (
-        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={!useMockData}
-                onChange={handleToggleMockData}
-                color="primary"
-              />
-            }
-            label={useMockData ? "Using Mock Data" : "Using API Data"}
-          />
-        </Box>
-      )}
-      
-      {/* Filters and Search */}
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              label="Search"
+    <div >
+      <div className="w-ful ">
+        <Box className="flex justify-between items-center mb-6">
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            className="text-gray-900 dark:text-gray-100 font-semibold"
+          >
+            All Transactions
+          </Typography>
+          
+          <Box className="flex items-center gap-2">
+            <Button
               variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={handleRefresh}
+              className="text-primary-600 dark:text-primary-400 border-primary-600 dark:border-primary-400"
               size="small"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              placeholder="Order ID, Student, School, etc."
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={2}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={statusFilter}
-                onChange={handleStatusChange}
-                label="Status"
+            >
+              Refresh
+            </Button>
+            
+            {isDevelopment() && (
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={!useMockData}
+                    onChange={handleToggleMockData}
+                    color="primary"
+                    size="small"
+                    className="ml-2"
+                  />
+                }
+                label={
+                  <Typography variant="body2" className="text-gray-600 dark:text-gray-300">
+                    {useMockData ? "Mock Data" : "API Data"}
+                  </Typography>
+                }
+                className="mb-0"
+              />
+            )}
+          </Box>
+        </Box>
+        
+        {error && (
+          <Alert 
+            severity="warning" 
+            sx={{ mb: 3 }}
+            className="bg-yellow-50 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100"
+            action={
+              <Button 
+                color="inherit" 
+                size="small" 
+                onClick={handleToggleMockData}
+                className="text-yellow-800 dark:text-yellow-100"
               >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="success">Success</MenuItem>
-                <MenuItem value="pending">Pending</MenuItem>
-                <MenuItem value="failed">Failed</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} sm={4}>
-            <Grid container spacing={1}>
-              <Grid item xs={8}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Sort By</InputLabel>
-                  <Select
-                    value={sortBy}
-                    onChange={handleSortChange}
-                    label="Sort By"
-                  >
-                    <MenuItem value="payment_time">Date</MenuItem>
-                    <MenuItem value="amount">Amount</MenuItem>
-                    <MenuItem value="status">Status</MenuItem>
-                    <MenuItem value="student_name">Student Name</MenuItem>
-                    <MenuItem value="payment_mode">Payment Mode</MenuItem>
-                    <MenuItem value="school_id">School</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={4}>
-                <Button 
-                  variant="outlined" 
-                  onClick={handleSortDirectionChange}
-                  fullWidth
+                {useMockData ? 'Try API' : 'Use Mock Data'}
+              </Button>
+            }
+          >
+            {error}
+          </Alert>
+        )}
+        
+        {/* Filters and Search */}
+        <Paper 
+          elevation={2} 
+          className="p-4 mb-6 bg-white dark:bg-gray-800 rounded-lg transition-colors duration-200"
+        >
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Search"
+                variant="outlined"
+                size="small"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder="Order ID, Student, School, etc."
+                InputProps={{
+                  className: "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                }}
+                InputLabelProps={{
+                  className: "text-gray-600 dark:text-gray-400"
+                }}
+              />
+            </Grid>
+            
+            <Grid item xs={12} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel className="text-gray-600 dark:text-gray-400">Status</InputLabel>
+                <Select
+                  value={statusFilter}
+                  onChange={handleStatusChange}
+                  label="Status"
+                  className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  MenuProps={{
+                    PaperProps: {
+                      className: "bg-white dark:bg-gray-800"
+                    }
+                  }}
                 >
-                  {sortDirection === 'asc' ? '↑ Asc' : '↓ Desc'}
-                </Button>
+                  <MenuItem 
+                    value=""
+                    className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    All
+                  </MenuItem>
+                  <MenuItem 
+                    value="success"
+                    className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Success
+                  </MenuItem>
+                  <MenuItem 
+                    value="pending"
+                    className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Pending
+                  </MenuItem>
+                  <MenuItem 
+                    value="failed"
+                    className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Failed
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} md={4}>
+              <Grid container spacing={1} alignItems="center">
+                <Grid item xs={8}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel className="text-gray-600 dark:text-gray-400">Sort By</InputLabel>
+                    <Select
+                      value={sortBy}
+                      onChange={handleSortChange}
+                      label="Sort By"
+                      className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      MenuProps={{
+                        PaperProps: {
+                          className: "bg-white dark:bg-gray-800"
+                        }
+                      }}
+                    >
+                      <MenuItem 
+                        value="payment_time"
+                        className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Date
+                      </MenuItem>
+                      <MenuItem 
+                        value="amount"
+                        className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Amount
+                      </MenuItem>
+                      <MenuItem 
+                        value="status"
+                        className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Status
+                      </MenuItem>
+                      <MenuItem 
+                        value="student_name"
+                        className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Student Name
+                      </MenuItem>
+                      <MenuItem 
+                        value="payment_mode"
+                        className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Payment Mode
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={4}>
+                  <Button 
+                    variant="outlined" 
+                    onClick={handleSortDirectionChange}
+                    fullWidth
+                    className="h-10 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                    startIcon={sortDirection === 'asc' ? <AscIcon /> : <DescIcon />}
+                  >
+                    {sortDirection === 'asc' ? 'Asc' : 'Desc'}
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
+            
+            <Grid item xs={12} md={1}>
+              <Box className="flex justify-end">
+                <Chip 
+                  label={`${filteredTransactions.length} items`} 
+                  className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  size="small"
+                />
+              </Box>
+            </Grid>
           </Grid>
-          
-          <Grid item xs={12} sm={2}>
-            <Typography variant="body2" color="textSecondary">
-              Total: {filteredTransactions.length} transactions
-            </Typography>
-          </Grid>
-        </Grid>
-      </Paper>
-      
-      {/* Transactions Table */}
-      <Paper>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                <TableCell><strong>Order ID</strong></TableCell>
-                <TableCell><strong>Student</strong></TableCell>
-                <TableCell><strong>School ID</strong></TableCell>
-                <TableCell><strong>Amount</strong></TableCell>
-                <TableCell><strong>Status</strong></TableCell>
-                <TableCell><strong>Payment Mode</strong></TableCell>
-                <TableCell><strong>Date</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                    <CircularProgress size={30} />
-                    <Typography variant="body2" sx={{ mt: 1 }}>Loading transactions...</Typography>
-                  </TableCell>
+        </Paper>
+        
+        {/* Transactions Table */}
+        <Paper elevation={2} className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden transition-colors duration-200">
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow className="bg-gray-50 dark:bg-gray-700">
+                  <TableCell className="text-gray-600 dark:text-gray-300 font-medium">Order ID</TableCell>
+                  <TableCell className="text-gray-600 dark:text-gray-300 font-medium">Student</TableCell>
+                  <TableCell className="text-gray-600 dark:text-gray-300 font-medium">School ID</TableCell>
+                  <TableCell className="text-gray-600 dark:text-gray-300 font-medium">Amount</TableCell>
+                  <TableCell className="text-gray-600 dark:text-gray-300 font-medium">Status</TableCell>
+                  <TableCell className="text-gray-600 dark:text-gray-300 font-medium">Payment Mode</TableCell>
+                  <TableCell className="text-gray-600 dark:text-gray-300 font-medium">Date</TableCell>
                 </TableRow>
-              ) : filteredTransactions.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1">No transactions found</Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      Try adjusting your search or filters
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                getCurrentPageData().map((transaction) => (
-                  <TableRow 
-                    key={transaction._id} 
-                    hover
-                    sx={{ '&:hover': { backgroundColor: '#f9f9f9' } }}
-                    onClick={() => handleViewTransaction(transaction._id)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <TableCell>{transaction.custom_order_id}</TableCell>
-                    <TableCell>
-                      <div>{transaction.student_info?.names || 'N/A'}</div>
-                      {transaction.student_info?.id && (
-                        <Typography variant="caption" color="textSecondary">
-                          ID: {transaction.student_info.id}
-                        </Typography>
-                      )}
+              </TableHead>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" className="py-10 text-center">
+                      <CircularProgress size={36} className="text-primary-600 dark:text-primary-400" />
+                      <Typography variant="body2" className="mt-2 text-gray-600 dark:text-gray-400">
+                        Loading transactions...
+                      </Typography>
                     </TableCell>
-                    <TableCell>{transaction.school_id}</TableCell>
-                    <TableCell>{formatAmount(transaction.order_amount)}</TableCell>
-                    <TableCell>
-                      <Box
-                        sx={{
-                          px: 1.5,
-                          py: 0.5,
-                          borderRadius: 1,
-                          display: 'inline-block',
-                          backgroundColor: getStatusColor(transaction.status),
-                          fontWeight: 'medium'
-                        }}
-                      >
-                        {transaction.status.toUpperCase()}
-                      </Box>
-                    </TableCell>
-                    <TableCell>{transaction.payment_mode || 'N/A'}</TableCell>
-                    <TableCell>{formatDate(transaction.payment_time)}</TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          component="div"
-          count={filteredTransactions.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-    </Container>
+                ) : filteredTransactions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" className="py-10 text-center">
+                      <Typography variant="body1" className="text-gray-900 dark:text-gray-100">
+                        No transactions found
+                      </Typography>
+                      <Typography variant="body2" className="text-gray-500 dark:text-gray-400">
+                        Try adjusting your search or filters
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  getCurrentPageData().map((transaction) => (
+                    <TableRow 
+                      key={transaction._id} 
+                      hover
+                      className="cursor-pointer border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200"
+                      onClick={() => handleViewTransaction(transaction._id)}
+                    >
+                      <TableCell className="text-gray-900 dark:text-gray-100">
+                        {transaction.custom_order_id}
+                      </TableCell>
+                      <TableCell className="text-gray-900 dark:text-gray-100">
+                        <div>{transaction.student_info?.names || 'N/A'}</div>
+                        {transaction.student_info?.id && (
+                          <Typography variant="caption" className="text-gray-500 dark:text-gray-400">
+                            ID: {transaction.student_info.id}
+                          </Typography>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-900 dark:text-gray-100">
+                        {transaction.school_id}
+                      </TableCell>
+                      <TableCell className="text-gray-900 dark:text-gray-100">
+                        {formatAmount(transaction.order_amount)}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={transaction.status.toUpperCase()}
+                          size="small"
+                          className={`${getStatusClasses(transaction.status)} px-2 py-1 font-medium`}
+                        />
+                      </TableCell>
+                      <TableCell className="text-gray-900 dark:text-gray-100">
+                        {transaction.payment_mode || 'N/A'}
+                      </TableCell>
+                      <TableCell className="text-gray-900 dark:text-gray-100">
+                        {formatDate(transaction.payment_time)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            component="div"
+            count={filteredTransactions.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            className="text-gray-700 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700"
+          />
+        </Paper>
+      </div>
+    </div>
   );
 };
 
-export default Transactions; 
+export default Transactions;

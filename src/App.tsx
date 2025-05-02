@@ -2,6 +2,8 @@ import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useEffect } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme';
 
 // Page imports
 import Dashboard from './pages/Dashboard';
@@ -14,6 +16,7 @@ import CreatePayment from './pages/CreatePayment';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import TransactionDetail from './pages/TransactionDetail';
+import Transactions from './pages/Transactions';
 
 // Initialize dark mode
 const initDarkMode = () => {
@@ -105,34 +108,38 @@ function App() {
   }, []);
   
   return (
-    <HashRouter>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-        <AuthProvider>
-          <ScrollToTop />
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+    <ThemeProvider theme={theme}>
+      <HashRouter>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+          <AuthProvider>
+            <ScrollToTop />
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Navigate to="/login" />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-            {/* Protected Routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/schools" element={<SchoolTransactions />} />
-              <Route path="/schools/:schoolId" element={<SchoolTransactions />} />
-              <Route path="/transactions/check-status" element={<CheckStatus />} />
-              <Route path="/transactions/status/:custom_order_id" element={<TransactionStatus />} />
-              <Route path="/transactions/:transactionId" element={<TransactionDetail />} />
-              <Route path="/payments/create" element={<CreatePayment />} />
-              <Route path="/settings" element={<Settings />} />
-            </Route>
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/transactions" element={<Transactions />} />
+                <Route path="/transactions/:id" element={<TransactionDetail />} />
+                <Route path="/school/transactions" element={<SchoolTransactions />} />
+                <Route path="/payments/create" element={<CreatePayment />} />
+                <Route path="/settings" element={<Settings />} />
+              </Route>
 
-            {/* Redirects */}
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </div>
-    </HashRouter>
+              {/* Public Routes - Non-authenticated routes */}
+              <Route path="/transactions/status/:id" element={<TransactionStatus />} />
+              <Route path="/check-status" element={<CheckStatus />} />
+
+              {/* Redirects */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </div>
+      </HashRouter>
+    </ThemeProvider>
   );
 }
 
