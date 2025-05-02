@@ -339,10 +339,13 @@ const Dashboard = () => {
 
   // Handle navigation to transaction details
   const handleRowClick = (transaction: Transaction) => {
+    console.log("Transaction clicked from Dashboard:", transaction);
     if (transaction._id) {
+      console.log("Navigating using _id:", transaction._id);
       navigate(`/transactions/${transaction._id}`);
     } else if (transaction.collect_id) {
       // Use collect_id as fallback if _id is not available
+      console.log("Navigating using collect_id (fallback):", transaction.collect_id);
       navigate(`/transactions/${transaction.collect_id}`);
     } else {
       console.error('Transaction ID not found:', transaction);

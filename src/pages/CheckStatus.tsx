@@ -100,9 +100,7 @@ const CheckStatus = () => {
             <li>Your payment receipt</li>
             <li>Your account transaction history</li>
           </ul>
-          <Typography variant="body2" sx={{ mt: 2 }}>
-            Order IDs typically follow the format: <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">ORDER-XXXXX</code>
-          </Typography>
+          
         </Paper>
       </Container>
     </Layout>

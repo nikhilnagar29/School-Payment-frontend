@@ -296,6 +296,11 @@ const Transactions = () => {
 
   // Navigate to transaction detail
   const handleViewTransaction = (transactionId: string) => {
+    console.log("Navigating to transaction detail with ID:", transactionId);
+    if (!transactionId) {
+      console.error("Cannot navigate to transaction detail: Missing transaction ID");
+      return;
+    }
     navigate(`/transactions/${transactionId}`);
   };
 

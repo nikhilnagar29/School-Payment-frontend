@@ -71,7 +71,7 @@ const createMockTransactionDetail = (transactionId: string | undefined): Transac
 };
 
 const TransactionDetail = () => {
-  const { transactionId } = useParams<{ transactionId: string }>();
+  const { id } = useParams<{ id: string }>();
   const [transaction, setTransaction] = useState<TransactionDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,18 +85,21 @@ const TransactionDetail = () => {
       if (useMockData) {
         // Use mock data for development
         setTimeout(() => {
-          setTransaction(createMockTransactionDetail(transactionId));
+          setTransaction(createMockTransactionDetail(id));
           setLoading(false);
         }, 800);
         return;
       }
 
       try {
-        if (!transactionId) {
-          throw new Error("Transaction ID is required");
+        if (!id || id === ':id' || id === 'undefined') {
+          setError("Transaction ID is missing or invalid");
+          console.error("Transaction ID is missing or invalid:", id);
+          return;
         }
 
-        const response = await transactionsAPI.getTransactionById(transactionId);
+        console.log("Fetching transaction with ID:", id);
+        const response = await transactionsAPI.getTransactionById(id);
         console.log("Transaction detail response:", response.data);
         
         setTransaction(response.data);
@@ -106,12 +109,12 @@ const TransactionDetail = () => {
         if (err.message === 'Network Error') {
           setError('Network error: Cannot connect to the backend server. Using mock data instead.');
           setUseMockData(true);
-          setTransaction(createMockTransactionDetail(transactionId));
+          setTransaction(createMockTransactionDetail(id));
         } else {
           setError(`Error: ${err.response?.data?.error || err.message || 'Failed to load transaction details'}`);
           // Still show mock data in development
           if (process.env.NODE_ENV === 'development') {
-            setTransaction(createMockTransactionDetail(transactionId));
+            setTransaction(createMockTransactionDetail(id));
           }
         }
       } finally {
@@ -120,7 +123,7 @@ const TransactionDetail = () => {
     };
 
     fetchTransactionDetail();
-  }, [transactionId, useMockData]);
+  }, [id, useMockData]);
 
   // Toggle between real and mock data
   const handleToggleMockData = () => {

@@ -67,9 +67,9 @@ export const transactionsAPI = {
   },
   getTransactionById: (id: string) => {
     console.log('[API Request] Getting transaction details:', id);
-    if (!id) {
-      console.error('Invalid transaction ID provided');
-      return Promise.reject(new Error('Invalid transaction ID'));
+    if (!id || id === ':id' || id === 'undefined') {
+      console.error('Transaction ID is missing or invalid:', id);
+      return Promise.reject(new Error('Transaction ID is required'));
     }
     return api.get(`/api/transactions/${id}`);
   },
