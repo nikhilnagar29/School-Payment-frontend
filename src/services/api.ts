@@ -79,14 +79,16 @@ export const transactionsAPI = {
     console.log('[API Request] Getting transactions for school:', validSchoolId);
     
     // Use the test endpoint which returns properly formatted data
-    return api.get(`/api/transactions/test/school/${validSchoolId}`, { params });
+    return api.get(`/api/transactions/school/${validSchoolId}`, { params });
   },
   getTransactionSummary: () => {
     console.log('[API Request] Getting transaction summary');
-    return api.get('/api/transactions/test/summary');
+    return api.get('/api/transactions/summary');
   },
-  checkTransactionStatus: (customOrderId: string) => 
-    api.get(`/api/transactions/status/${customOrderId}`),
+  checkTransactionStatus: (customOrderId: string) => {
+    console.log('[API Request] Checking transaction status:', customOrderId);
+    return api.get(`/api/transactions/status/${customOrderId}`);
+  },
   
   // Format API response to match our expected format
   formatSummaryResponse: (data: any) => {
