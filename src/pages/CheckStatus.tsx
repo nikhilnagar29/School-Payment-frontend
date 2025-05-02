@@ -88,7 +88,7 @@ const CheckStatus = () => {
           </Box>
         </Paper>
         
-        <Paper sx={{ p: 4 }} elevation={2} className="bg-white dark:bg-gray-800">
+        <Paper sx={{ p: 4 }} elevation={2} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
           <Typography variant="h6" gutterBottom>
             How to find your Order ID
           </Typography>
